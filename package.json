@@ -1,0 +1,30 @@
+{
+    "name": "swiftssr",
+    "version": "0.0.1",
+    "author": {
+        "name": "Derrick Wafula",
+        "email": "derrickwafula1500@gmail.com",
+        "url": "https://github.com/DerrohXy"
+    },
+    "description": "Simple server side rendering utility.",
+    "main": "dist/index.js",
+    "module": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": "./dist/index.js",
+        "./jsx-runtime": "./dist/jsx-runtime.js",
+        "./types": "./dist/types.js"
+    },
+    "files": [
+        "dist"
+    ],
+    "sideEffects": false,
+    "scripts": {
+        "build": "tsc"
+    },
+    "keywords": [],
+    "license": "MIT",
+    "devDependencies": {
+        "typescript": "^5.9.2"
+    }
+}
