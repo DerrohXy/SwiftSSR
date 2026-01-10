@@ -1,12 +1,12 @@
-import { HTMLElementProps, HTMLElementTag } from "./types";
+import { SwiftSSRHTMLElementProps, HTMLElementTag } from "./types";
 
-type SwiftSSRJSXTag = HTMLElementTag | ((props: HTMLElementProps) => string);
+type SwiftSSRJSXTag = HTMLElementTag | ((props: SwiftSSRHTMLElementProps) => string);
 
 type SwiftSSRJSXChild = SwiftSSRJSXParameters | string;
 
 type SwiftSSRJSXChildren = SwiftSSRJSXChild | Array<SwiftSSRJSXChild>;
 
-type SwiftSSRJSXProps = HTMLElementProps & {
+type SwiftSSRJSXProps = SwiftSSRHTMLElementProps & {
     children?: SwiftSSRJSXChildren;
 };
 
@@ -117,9 +117,9 @@ export const jsxs = jsx;
 declare global {
     namespace JSX {
         type IntrinsicElements = {
-            [tag: string]: HTMLElementProps;
+            [tag: string]: SwiftSSRHTMLElementProps;
         };
 
-        type ElementClass = (props: HTMLElementProps) => string;
+        type ElementClass = (props: SwiftSSRHTMLElementProps) => string;
     }
 }

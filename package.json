@@ -1,6 +1,6 @@
 {
     "name": "swiftssr",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "author": {
         "name": "Derrick Wafula",
         "email": "derrickwafula1500@gmail.com",
@@ -26,5 +26,8 @@
     "license": "MIT",
     "devDependencies": {
         "typescript": "^5.9.2"
+    },
+    "dependencies": {
+        "ts-node": "^10.9.2"
     }
 }

@@ -420,8 +420,264 @@ export type ClassValue =
     | null
     | undefined;
 
-export type HTMLElementProps = {
-    style?: CSSProps;
-    className?: ClassValue;
+export type HTMLBaseElementProps = {
+    // Global attributes
+    accesskey?: string;
+    autocapitalize?:
+        | "off"
+        | "none"
+        | "on"
+        | "sentences"
+        | "words"
+        | "characters"
+        | string;
+    class?: string;
+    contenteditable?: boolean | "true" | "false";
+    contextmenu?: string;
+    dir?: "ltr" | "rtl" | "auto";
+    draggable?: boolean | "true" | "false";
+    enterkeyhint?:
+        | "enter"
+        | "done"
+        | "go"
+        | "next"
+        | "previous"
+        | "search"
+        | "send"
+        | string;
+    hidden?: boolean | "true" | "false";
+    id?: string;
+    inputmode?:
+        | "none"
+        | "text"
+        | "decimal"
+        | "numeric"
+        | "tel"
+        | "search"
+        | "email"
+        | "url"
+        | string;
+    is?: string;
+    lang?: string;
+    nonce?: string;
+    part?: string;
+    slot?: string;
+    spellcheck?: boolean | "true" | "false";
+    tabindex?: number | string;
+    title?: string;
+    translate?: "yes" | "no";
+
+    // Form-related attributes
+    accept?: string;
+    action?: string;
+    autofocus?: boolean | "true" | "false";
+    autocomplete?: "on" | "off" | string;
+    checked?: boolean | "true" | "false";
+    cols?: number | string;
+    dirname?: string;
+    disabled?: boolean | "true" | "false";
+    form?: string;
+    formaction?: string;
+    formenctype?:
+        | "application/x-www-form-urlencoded"
+        | "multipart/form-data"
+        | "text/plain"
+        | string;
+    formmethod?: "get" | "post" | "dialog" | string;
+    formnovalidate?: boolean | "true" | "false";
+    formtarget?: "_self" | "_blank" | "_parent" | "_top" | string;
+    list?: string;
+    max?: string | number;
+    maxlength?: number | string;
+    min?: string | number;
+    minlength?: number | string;
+    method?: "get" | "post" | "dialog" | string;
+    multiple?: boolean | "true" | "false";
+    name?: string;
+    novalidate?: boolean | "true" | "false";
+    pattern?: string;
+    placeholder?: string;
+    readonly?: boolean | "true" | "false";
+    required?: boolean | "true" | "false";
+    rows?: number | string;
+    selected?: boolean | "true" | "false";
+    size?: number | string;
+    step?: number | string;
+    value?: string | number;
+    wrap?: "hard" | "soft" | "off" | string;
+
+    // Media-related attributes
+    alt?: string;
+    autoplay?: boolean | "true" | "false";
+    controls?: boolean | "true" | "false";
+    height?: string | number;
+    loop?: boolean | "true" | "false";
+    muted?: boolean | "true" | "false";
+    poster?: string;
+    preload?: "none" | "metadata" | "auto" | string;
+    width?: string | number;
+
+    // Anchor & link-related
+    download?: boolean | string;
+    href?: string;
+    hreflang?: string;
+    media?: string;
+    ping?: string;
+    rel?:
+        | "alternate"
+        | "author"
+        | "bookmark"
+        | "external"
+        | "help"
+        | "license"
+        | "next"
+        | "nofollow"
+        | "noopener"
+        | "noreferrer"
+        | "prev"
+        | "search"
+        | "tag"
+        | string;
+    target?: "_self" | "_blank" | "_parent" | "_top" | string;
+
+    // Script attributes
+    async?: boolean | "true" | "false";
+    defer?: boolean | "true" | "false";
+    src?: string;
+    type?: string;
+    crossorigin?: "anonymous" | "use-credentials" | string;
+    integrity?: string;
+    nomodule?: boolean | "true" | "false";
+    referrerpolicy?:
+        | "no-referrer"
+        | "no-referrer-when-downgrade"
+        | "origin"
+        | "origin-when-cross-origin"
+        | "same-origin"
+        | "strict-origin"
+        | "strict-origin-when-cross-origin"
+        | "unsafe-url"
+        | string;
+
+    // Allow any other attribute or custom prop
     [key: string]: any;
 };
+
+export type HTMLEventListenerProps = {
+    onafterprint?: string;
+    onanimationcancel?: string;
+    onanimationend?: string;
+    onanimationiteration?: string;
+    onanimationstart?: string;
+    onauxclick?: string;
+    onbeforeinput?: string;
+    onbeforeprint?: string;
+    onbeforeunload?: string;
+    onblur?: string;
+    oncanplay?: string;
+    oncanplaythrough?: string;
+    onchange?: string;
+    onclick?: string;
+    onclose?: string;
+    oncontextmenu?: string;
+    oncopy?: string;
+    oncuechange?: string;
+    oncut?: string;
+    ondblclick?: string;
+    ondrag?: string;
+    ondragend?: string;
+    ondragenter?: string;
+    ondragexit?: string;
+    ondragleave?: string;
+    ondragover?: string;
+    ondragstart?: string;
+    ondrop?: string;
+    ondurationchange?: string;
+    onemptied?: string;
+    onended?: string;
+    onerror?: string;
+    onfocus?: string;
+    onformdata?: string;
+    onfullscreenchange?: string;
+    onfullscreenerror?: string;
+    ongamepadconnected?: string;
+    ongamepaddisconnected?: string;
+    ongotpointercapture?: string;
+    onhashchange?: string;
+    oninput?: string;
+    oninvalid?: string;
+    onkeydown?: string;
+    onkeypress?: string;
+    onkeyup?: string;
+    onlanguagechange?: string;
+    onload?: string;
+    onloadeddata?: string;
+    ononloadedmetadata?: string;
+    onloadstart?: string;
+    onlostpointercapture?: string;
+    onmessage?: string;
+    onmessageerror?: string;
+    onmousedown?: string;
+    onmousemove?: string;
+    onmouseout?: string;
+    onmouseover?: string;
+    onmouseup?: string;
+    onoffline?: string;
+    ononline?: string;
+    onpagehide?: string;
+    onpageshow?: string;
+    onpaste?: string;
+    onpause?: string;
+    onplay?: string;
+    onplaying?: string;
+    onpointercancel?: string;
+    onpointerdown?: string;
+    onpointerenter?: string;
+    onpointerleave?: string;
+    onpointermove?: string;
+    onpointerout?: string;
+    onpointerover?: string;
+    onpointerup?: string;
+    onpopstate?: string;
+    onprogress?: string;
+    onratechange?: string;
+    onrejectionhandled?: string;
+    onreset?: string;
+    onresize?: string;
+    onscroll?: string;
+    onscrollend?: string;
+    onsecuritypolicyviolation?: string;
+    onseeked?: string;
+    onseeking?: string;
+    onselect?: string;
+    onselectionchange?: string;
+    onselectstart?: string;
+    onslotchange?: string;
+    onstalled?: string;
+    onstorage?: string;
+    onsubmit?: string;
+    onsuspend?: string;
+    ontimeupdate?: string;
+    ontoggle?: string;
+    ontransitioncancel?: string;
+    ontransitionend?: string;
+    ontransitionrun?: string;
+    ontransitionstart?: string;
+    onunhandledrejection?: string;
+    onunload?: string;
+    onvolumechange?: string;
+    onwaiting?: string;
+    onwebkitanimationend?: string;
+    onwebkitanimationiteration?: string;
+    onwebkitanimationstart?: string;
+    onwebkittransitionend?: string;
+    //
+    [key: string]: any;
+};
+
+export type SwiftSSRHTMLElementProps = HTMLBaseElementProps &
+    HTMLEventListenerProps & {
+        style?: CSSProps;
+        className?: ClassValue;
+        [key: string]: any;
+    };

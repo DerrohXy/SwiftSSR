@@ -1,4 +1,4 @@
-import { HTMLElementTag, HTMLElementProps, ClassValue } from "./types";
+import { HTMLElementTag, SwiftSSRHTMLElementProps, ClassValue } from "./types";
 
 function toKebabCase(text: string) {
     return text
@@ -9,7 +9,7 @@ function toKebabCase(text: string) {
 }
 
 function escapeHTML(text: string) {
-    text.replace(
+    return text.replace(
         /[&<>"']/g,
         (token) =>
             ({
@@ -44,37 +44,39 @@ function classNames(...args: ClassValue[]): string {
     return classes.join(" ");
 }
 
-function formatProps(props: HTMLElementProps) {
-    return Object.entries(props)
-        .map(([key, value]) => {
-            if (value === null || value === undefined) return "";
+function formatProps(props: SwiftSSRHTMLElementProps) {
+    return (
+        Object.entries(props)
+            .map(([key, value]) => {
+                if (value === null || value === undefined) return "";
 
-            if (key === "className") {
-                const resolvedClasses = classNames(value);
-                return resolvedClasses
-                    ? `class="${escapeHTML(resolvedClasses)}"`
-                    : "";
-            }
+                if (key === "className") {
+                    const resolvedClasses = classNames(value);
+                    return resolvedClasses
+                        ? `class="${escapeHTML(resolvedClasses)}"`
+                        : "";
+                }
 
-            if (key === "style" && typeof value === "object") {
-                const styleString = Object.entries(value)
-                    .map(([sKey, sVal]) => `${toKebabCase(sKey)}:${sVal}`)
-                    .join("; ");
-                return `style="${styleString}"`;
-            }
+                if (key === "style" && typeof value === "object") {
+                    const styleString = Object.entries(value)
+                        .map(([sKey, sVal]) => `${toKebabCase(sKey)}:${sVal}`)
+                        .join("; ");
+                    return `style="${styleString}"`;
+                }
 
-            if (value === true) return key;
-            if (value === false) return "";
+                if (value === true) return key;
+                if (value === false) return "";
 
-            return `${key}="${escapeHTML(String(value))}"`;
-        })
-        .filter(Boolean)
-        .join(" ");
+                return `${key}="${escapeHTML(String(value))}"`;
+            })
+            //.filter(Boolean)
+            .join(" ")
+    );
 }
 
 export function Element(
     tag: HTMLElementTag,
-    props: HTMLElementProps | null,
+    props: SwiftSSRHTMLElementProps | null,
     ...children: Array<string>
 ): string {
     const propString = props ? ` ${formatProps(props)}`.trimEnd() : "";
@@ -104,11 +106,11 @@ export function Element(
     return `<${tag}${propString}>${content}</${tag}>`;
 }
 
-export function EmbeddedJS(code: string, props?: HTMLElementProps): string {
+export function EmbeddedJS(code: string, props?: SwiftSSRHTMLElementProps): string {
     return Element("script", props ?? null, code.trim());
 }
 
-export function EmbeddedCSS(css: string, props?: HTMLElementProps): string {
+export function EmbeddedCSS(css: string, props?: SwiftSSRHTMLElementProps): string {
     return Element("style", props ?? null, css.trim());
 }
 
