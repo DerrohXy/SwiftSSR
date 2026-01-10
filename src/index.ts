@@ -1,7 +1,15 @@
 import { HTMLElementTag, HTMLElementProps, ClassValue } from "./types";
 
-const escapeHTML = (str: string) =>
-    str.replace(
+function toKebabCase(text: string) {
+    return text
+        .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+        .replace(/([A-Z])([A-Z][a-z])/g, "$1-$2")
+        .replace(/[\s_]+/g, "-")
+        .toLowerCase();
+}
+
+function escapeHTML(text: string) {
+    text.replace(
         /[&<>"']/g,
         (token) =>
             ({
@@ -12,6 +20,7 @@ const escapeHTML = (str: string) =>
                 "'": "&#39;",
             }[token] || token)
     );
+}
 
 function classNames(...args: ClassValue[]): string {
     const classes: string[] = [];
@@ -49,7 +58,7 @@ function formatProps(props: HTMLElementProps) {
 
             if (key === "style" && typeof value === "object") {
                 const styleString = Object.entries(value)
-                    .map(([sKey, sVal]) => `${sKey}:${sVal}`)
+                    .map(([sKey, sVal]) => `${toKebabCase(sKey)}:${sVal}`)
                     .join("; ");
                 return `style="${styleString}"`;
             }
