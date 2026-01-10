@@ -1,6 +1,6 @@
-import { HTMLElementProps } from "./types";
+import { HTMLElementProps, HTMLElementTag } from "./types";
 
-type SwiftSSRJSXTag = string | ((props: HTMLElementProps) => string);
+type SwiftSSRJSXTag = HTMLElementTag | ((props: HTMLElementProps) => string);
 
 type SwiftSSRJSXChild = SwiftSSRJSXParameters | string;
 
@@ -41,7 +41,7 @@ function _parseChild(child: any) {
  * @returns
  */
 function _withChildren(
-    type: string,
+    type: HTMLElementTag,
     props: SwiftSSRJSXProps,
     key?: any
 ): string {

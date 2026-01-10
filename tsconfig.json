@@ -1,22 +1,17 @@
 {
     "compilerOptions": {
-        "target": "ES6",
-        "module": "NodeNext",
-        "lib": [
-            "DOM",
-            "ESNext"
-        ],
+        "target": "es2020",
+        "module": "commonjs",
+        "lib": ["DOM", "ESNext"],
         "declaration": true,
         "outDir": "./dist",
         "strict": true,
         "esModuleInterop": true,
-        "moduleResolution": "nodenext",
+        "moduleResolution": "node",
         "skipLibCheck": true,
         "sourceMap": false,
         "jsx": "react-jsx",
         "jsxImportSource": "./src"
     },
-    "include": [
-        "src"
-    ]
+    "include": ["src"]
 }
