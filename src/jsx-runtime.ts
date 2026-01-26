@@ -1,6 +1,8 @@
 import { SwiftSSRHTMLElementProps, HTMLElementTag } from "./types";
 
-type SwiftSSRJSXTag = HTMLElementTag | ((props: SwiftSSRHTMLElementProps) => string);
+type SwiftSSRJSXTag =
+    | HTMLElementTag
+    | ((props: SwiftSSRHTMLElementProps) => string);
 
 type SwiftSSRJSXChild = SwiftSSRJSXParameters | string;
 
@@ -43,7 +45,7 @@ function _parseChild(child: any) {
 function _withChildren(
     type: HTMLElementTag,
     props: SwiftSSRJSXProps,
-    key?: any
+    key?: any,
 ): string {
     if (Array.isArray(props.children)) {
         let parsedChildren_ = props.children.map((child) => {
@@ -72,7 +74,7 @@ function _withChildren(
 function _withProps(
     type: SwiftSSRJSXTag,
     props: SwiftSSRJSXProps,
-    key?: any
+    key?: any,
 ): string {
     if (typeof type === "function") {
         return type(props);
@@ -94,7 +96,7 @@ function _withoutProps(type: SwiftSSRJSXTag, key?: any): string {
 }
 
 /**
- * Generates a CurlUI render element from a JSX tag
+ * Generates a render element from a JSX tag
  * @param type Tag to parse
  * @param props Props to parse to the component function
  * @param key #Ignored
@@ -103,7 +105,7 @@ function _withoutProps(type: SwiftSSRJSXTag, key?: any): string {
 export function jsx(
     type: SwiftSSRJSXTag,
     props?: SwiftSSRJSXProps,
-    key?: any
+    key?: any,
 ): string {
     if (props) {
         return _withProps(type, props, key);
