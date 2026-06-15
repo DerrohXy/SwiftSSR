@@ -1,4 +1,6 @@
 import { HTMLElementTag, SwiftSSRHTMLElementProps, ClassValue } from "./types";
+import fs from "fs";
+import path from "path";
 
 function toKebabCase(text: string) {
     return text
@@ -8,7 +10,7 @@ function toKebabCase(text: string) {
         .toLowerCase();
 }
 
-function escapeHTML(text: string) {
+export function Escape(text: string) {
     return text.replace(
         /[&<>"']/g,
         (token) =>
@@ -18,8 +20,56 @@ function escapeHTML(text: string) {
                 ">": "&gt;",
                 '"': "&quot;",
                 "'": "&#39;",
-            }[token] || token)
+            })[token] || token,
     );
+}
+
+function extractEmbeddedLoadPath(value: string): string | null {
+    const match = value.match(/^LOAD\("(.+)"\)$/);
+
+    return match ? match[1] : null;
+}
+
+function loadEmbeddedFile(filePath: string): string | null {
+    try {
+        const cwd = process.cwd();
+
+        const packageJsonPath = path.join(cwd, "package.json");
+
+        if (!fs.existsSync(packageJsonPath)) {
+            return null;
+        }
+
+        const packageJson = JSON.parse(
+            fs.readFileSync(packageJsonPath, "utf8"),
+        );
+
+        const scriptsRoot = packageJson.swiftSSRScriptsRoot;
+
+        if (!scriptsRoot || typeof scriptsRoot !== "string") {
+            return null;
+        }
+
+        const fullPath = path.resolve(cwd, scriptsRoot, filePath);
+
+        if (!fs.existsSync(fullPath)) {
+            return null;
+        }
+
+        return fs.readFileSync(fullPath, "utf8");
+    } catch {
+        return null;
+    }
+}
+
+export function loadEmbeddedFileTemplate(content: string) {
+    let loadingPath = extractEmbeddedLoadPath(content);
+    if (loadingPath) {
+        let loadedContent = loadEmbeddedFile(loadingPath);
+        return loadedContent;
+    }
+
+    return null;
 }
 
 function classNames(...args: ClassValue[]): string {
@@ -48,12 +98,14 @@ function formatProps(props: SwiftSSRHTMLElementProps) {
     return (
         Object.entries(props)
             .map(([key, value]) => {
-                if (value === null || value === undefined) return "";
+                if (value === null || value === undefined) {
+                    return "";
+                }
 
                 if (key === "className") {
                     const resolvedClasses = classNames(value);
                     return resolvedClasses
-                        ? `class="${escapeHTML(resolvedClasses)}"`
+                        ? `class="${Escape(resolvedClasses)}"`
                         : "";
                 }
 
@@ -64,10 +116,14 @@ function formatProps(props: SwiftSSRHTMLElementProps) {
                     return `style="${styleString}"`;
                 }
 
-                if (value === true) return key;
-                if (value === false) return "";
+                if (value === true) {
+                    return key;
+                }
+                if (value === false) {
+                    return "";
+                }
 
-                return `${key}="${escapeHTML(String(value))}"`;
+                return `${key}="${Escape(String(value))}"`;
             })
             //.filter(Boolean)
             .join(" ")
@@ -80,7 +136,15 @@ export function Element(
     ...children: Array<string>
 ): string {
     const propString = props ? ` ${formatProps(props)}`.trimEnd() : "";
-    const content = children.join("");
+    const loadedChildren = children.map((content) => {
+        if (["script", "style"].includes(tag)) {
+            return loadEmbeddedFileTemplate(content.trim()) ?? content;
+        }
+
+        return content;
+    });
+
+    const content = loadedChildren.join("");
 
     const voidElements = [
         "area",
@@ -106,12 +170,22 @@ export function Element(
     return `<${tag}${propString}>${content}</${tag}>`;
 }
 
-export function EmbeddedJS(code: string, props?: SwiftSSRHTMLElementProps): string {
-    return Element("script", props ?? null, code.trim());
+export function EmbeddedJS(
+    code: string,
+    props?: SwiftSSRHTMLElementProps,
+): string {
+    let embeddedCode = loadEmbeddedFileTemplate(code.trim()) ?? code;
+
+    return Element("script", props ?? null, embeddedCode.trim());
 }
 
-export function EmbeddedCSS(css: string, props?: SwiftSSRHTMLElementProps): string {
-    return Element("style", props ?? null, css.trim());
+export function EmbeddedCSS(
+    code: string,
+    props?: SwiftSSRHTMLElementProps,
+): string {
+    let embeddedCode = loadEmbeddedFileTemplate(code.trim()) ?? code;
+
+    return Element("style", props ?? null, embeddedCode.trim());
 }
 
 type DocumentProps = {
@@ -153,7 +227,7 @@ function SitemapUrl(
     origin: string,
     path: string,
     lastmod?: string,
-    priority: number = 0.5
+    priority: number = 0.5,
 ): string {
     const dateStr = lastmod || new Date().toISOString().split("T")[0];
     const priorityStr = priority.toFixed(1);
@@ -163,7 +237,7 @@ function SitemapUrl(
         null,
         Element("loc", null, `${origin}${path}`),
         Element("lastmod", null, dateStr),
-        Element("priority", null, priorityStr)
+        Element("priority", null, priorityStr),
     );
 }
 
@@ -173,7 +247,7 @@ export function GenerateSitemap(origin: string, paths: string[]): string {
     const urlset = Element(
         "urlset",
         { xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" },
-        ...urlBlocks
+        ...urlBlocks,
     );
 
     return `<?xml version="1.0" encoding="UTF-8"?>\n${urlset}`;

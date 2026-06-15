@@ -2,5 +2,4 @@
 .vscode
 *.env
 node_modules
-dist
 *.log
