@@ -10,7 +10,7 @@ function toKebabCase(text: string) {
         .toLowerCase();
 }
 
-export function Escape(text: string) {
+export function EscapeHTML(text: string) {
     return text.replace(
         /[&<>"']/g,
         (token) =>
@@ -105,7 +105,7 @@ function formatProps(props: SwiftSSRHTMLElementProps) {
                 if (key === "className") {
                     const resolvedClasses = classNames(value);
                     return resolvedClasses
-                        ? `class="${Escape(resolvedClasses)}"`
+                        ? `class="${EscapeHTML(resolvedClasses)}"`
                         : "";
                 }
 
@@ -123,7 +123,7 @@ function formatProps(props: SwiftSSRHTMLElementProps) {
                     return "";
                 }
 
-                return `${key}="${Escape(String(value))}"`;
+                return `${key}="${EscapeHTML(String(value))}"`;
             })
             //.filter(Boolean)
             .join(" ")
