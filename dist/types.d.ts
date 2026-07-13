@@ -285,3 +285,4 @@ export type SwiftSSRHTMLElementProps = HTMLBaseElementProps & HTMLEventListenerP
     className?: ClassValue;
     [key: string]: any;
 };
+export type SwiftSSRElement = string;

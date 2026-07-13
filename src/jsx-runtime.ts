@@ -1,10 +1,14 @@
-import { SwiftSSRHTMLElementProps, HTMLElementTag } from "./types";
+import {
+    SwiftSSRHTMLElementProps,
+    HTMLElementTag,
+    SwiftSSRElement,
+} from "./types";
 
 type SwiftSSRJSXTag =
     | HTMLElementTag
-    | ((props: SwiftSSRHTMLElementProps) => string);
+    | ((props: SwiftSSRHTMLElementProps) => SwiftSSRElement);
 
-type SwiftSSRJSXChild = SwiftSSRJSXParameters | string;
+type SwiftSSRJSXChild = SwiftSSRJSXParameters | SwiftSSRElement;
 
 type SwiftSSRJSXChildren = SwiftSSRJSXChild | Array<SwiftSSRJSXChild>;
 
@@ -46,7 +50,7 @@ function _withChildren(
     type: HTMLElementTag,
     props: SwiftSSRJSXProps,
     key?: any,
-): string {
+): SwiftSSRElement {
     if (Array.isArray(props.children)) {
         let parsedChildren_ = props.children.map((child) => {
             return _parseChild(child);
@@ -75,7 +79,7 @@ function _withProps(
     type: SwiftSSRJSXTag,
     props: SwiftSSRJSXProps,
     key?: any,
-): string {
+): SwiftSSRElement {
     if (typeof type === "function") {
         return type(props);
     } else {
@@ -91,7 +95,7 @@ function _withProps(
  * @param key
  * @returns
  */
-function _withoutProps(type: SwiftSSRJSXTag, key?: any): string {
+function _withoutProps(type: SwiftSSRJSXTag, key?: any): SwiftSSRElement {
     return typeof type === "string" ? Element(type, {}) : type({});
 }
 
@@ -106,7 +110,7 @@ export function jsx(
     type: SwiftSSRJSXTag,
     props?: SwiftSSRJSXProps,
     key?: any,
-): string {
+): SwiftSSRElement {
     if (props) {
         return _withProps(type, props, key);
     } else {
@@ -119,9 +123,11 @@ export const jsxs = jsx;
 declare global {
     namespace JSX {
         type IntrinsicElements = {
-            [tag: string]: SwiftSSRHTMLElementProps;
+            [tag in HTMLElementTag]: SwiftSSRHTMLElementProps;
         };
 
-        type ElementClass = (props: SwiftSSRHTMLElementProps) => string;
+        type ElementClass = (
+            props: SwiftSSRHTMLElementProps,
+        ) => SwiftSSRElement;
     }
 }

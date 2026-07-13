@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EscapeHTML = EscapeHTML;
+exports.LoadEmbeddedFile = LoadEmbeddedFile;
 exports.loadEmbeddedFileTemplate = loadEmbeddedFileTemplate;
 exports.Element = Element;
 exports.EmbeddedJS = EmbeddedJS;
@@ -32,7 +33,7 @@ function extractEmbeddedLoadPath(value) {
     const match = value.match(/^LOAD\("(.+)"\)$/);
     return match ? match[1] : null;
 }
-function loadEmbeddedFile(filePath) {
+function LoadEmbeddedFile(embeddedPath) {
     try {
         const cwd = process.cwd();
         const packageJsonPath = path_1.default.join(cwd, "package.json");
@@ -40,11 +41,11 @@ function loadEmbeddedFile(filePath) {
             return null;
         }
         const packageJson = JSON.parse(fs_1.default.readFileSync(packageJsonPath, "utf8"));
-        const scriptsRoot = packageJson.swiftSSRScriptsRoot;
+        const scriptsRoot = packageJson.swiftSSRScriptsRoot || packageJson.SwiftSSRScriptsRoot;
         if (!scriptsRoot || typeof scriptsRoot !== "string") {
             return null;
         }
-        const fullPath = path_1.default.resolve(cwd, scriptsRoot, filePath);
+        const fullPath = path_1.default.resolve(cwd, scriptsRoot, embeddedPath);
         if (!fs_1.default.existsSync(fullPath)) {
             return null;
         }
@@ -57,7 +58,7 @@ function loadEmbeddedFile(filePath) {
 function loadEmbeddedFileTemplate(content) {
     let loadingPath = extractEmbeddedLoadPath(content);
     if (loadingPath) {
-        let loadedContent = loadEmbeddedFile(loadingPath);
+        let loadedContent = LoadEmbeddedFile(loadingPath);
         return loadedContent;
     }
     return null;
@@ -116,6 +117,9 @@ function formatProps(props) {
 function Element(tag, props, ...children) {
     const propString = props ? ` ${formatProps(props)}`.trimEnd() : "";
     const loadedChildren = children.map((content) => {
+        if (!content) {
+            return "";
+        }
         if (["script", "style"].includes(tag)) {
             return loadEmbeddedFileTemplate(content.trim()) ?? content;
         }

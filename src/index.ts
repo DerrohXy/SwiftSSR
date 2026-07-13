@@ -1,4 +1,9 @@
-import { HTMLElementTag, SwiftSSRHTMLElementProps, ClassValue } from "./types";
+import {
+    HTMLElementTag,
+    SwiftSSRHTMLElementProps,
+    ClassValue,
+    SwiftSSRElement,
+} from "./types";
 import fs from "fs";
 import path from "path";
 
@@ -30,7 +35,7 @@ function extractEmbeddedLoadPath(value: string): string | null {
     return match ? match[1] : null;
 }
 
-function loadEmbeddedFile(filePath: string): string | null {
+export function LoadEmbeddedFile(embeddedPath: string): string | null {
     try {
         const cwd = process.cwd();
 
@@ -44,13 +49,14 @@ function loadEmbeddedFile(filePath: string): string | null {
             fs.readFileSync(packageJsonPath, "utf8"),
         );
 
-        const scriptsRoot = packageJson.swiftSSRScriptsRoot;
+        const scriptsRoot =
+            packageJson.swiftSSRScriptsRoot || packageJson.SwiftSSRScriptsRoot;
 
         if (!scriptsRoot || typeof scriptsRoot !== "string") {
             return null;
         }
 
-        const fullPath = path.resolve(cwd, scriptsRoot, filePath);
+        const fullPath = path.resolve(cwd, scriptsRoot, embeddedPath);
 
         if (!fs.existsSync(fullPath)) {
             return null;
@@ -65,7 +71,7 @@ function loadEmbeddedFile(filePath: string): string | null {
 export function loadEmbeddedFileTemplate(content: string) {
     let loadingPath = extractEmbeddedLoadPath(content);
     if (loadingPath) {
-        let loadedContent = loadEmbeddedFile(loadingPath);
+        let loadedContent = LoadEmbeddedFile(loadingPath);
         return loadedContent;
     }
 
@@ -133,10 +139,14 @@ function formatProps(props: SwiftSSRHTMLElementProps) {
 export function Element(
     tag: HTMLElementTag,
     props: SwiftSSRHTMLElementProps | null,
-    ...children: Array<string>
-): string {
+    ...children: Array<SwiftSSRElement | null>
+): SwiftSSRElement {
     const propString = props ? ` ${formatProps(props)}`.trimEnd() : "";
     const loadedChildren = children.map((content) => {
+        if (!content) {
+            return "";
+        }
+
         if (["script", "style"].includes(tag)) {
             return loadEmbeddedFileTemplate(content.trim()) ?? content;
         }
@@ -173,7 +183,7 @@ export function Element(
 export function EmbeddedJS(
     code: string,
     props?: SwiftSSRHTMLElementProps,
-): string {
+): SwiftSSRElement {
     let embeddedCode = loadEmbeddedFileTemplate(code.trim()) ?? code;
 
     return Element("script", props ?? null, embeddedCode.trim());
@@ -182,7 +192,7 @@ export function EmbeddedJS(
 export function EmbeddedCSS(
     code: string,
     props?: SwiftSSRHTMLElementProps,
-): string {
+): SwiftSSRElement {
     let embeddedCode = loadEmbeddedFileTemplate(code.trim()) ?? code;
 
     return Element("style", props ?? null, embeddedCode.trim());
@@ -191,8 +201,8 @@ export function EmbeddedCSS(
 type DocumentProps = {
     title?: string;
     lang?: string;
-    head?: string[];
-    body?: string[];
+    head?: SwiftSSRElement[];
+    body?: SwiftSSRElement[];
 };
 
 export function Document(params: DocumentProps): string {
@@ -228,7 +238,7 @@ function SitemapUrl(
     path: string,
     lastmod?: string,
     priority: number = 0.5,
-): string {
+): SwiftSSRElement {
     const dateStr = lastmod || new Date().toISOString().split("T")[0];
     const priorityStr = priority.toFixed(1);
 
