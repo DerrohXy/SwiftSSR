@@ -283,6 +283,7 @@ export type HTMLEventListenerProps = {
 export type SwiftSSRHTMLElementProps = HTMLBaseElementProps & HTMLEventListenerProps & {
     style?: CSSProps;
     className?: ClassValue;
+    children?: Array<SwiftSSRElement>;
     [key: string]: any;
 };
 export type SwiftSSRElement = string;

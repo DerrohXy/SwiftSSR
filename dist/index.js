@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ValidHTML = ValidHTML;
 exports.EscapeHTML = EscapeHTML;
 exports.LoadEmbeddedFile = LoadEmbeddedFile;
 exports.loadEmbeddedFileTemplate = loadEmbeddedFileTemplate;
@@ -19,6 +20,24 @@ function toKebabCase(text) {
         .replace(/([A-Z])([A-Z][a-z])/g, "$1-$2")
         .replace(/[\s_]+/g, "-")
         .toLowerCase();
+}
+function spread(items) {
+    const spread_ = [];
+    items.map((x) => {
+        if (Array.isArray(x)) {
+            spread_.push(...spread(x));
+        }
+        else {
+            spread_.push(x);
+        }
+    });
+    return spread_;
+}
+function ValidHTML(htmlString) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, "application/xml");
+    const errorNode = doc.querySelector("parsererror");
+    return !errorNode;
 }
 function EscapeHTML(text) {
     return text.replace(/[&<>"']/g, (token) => ({
@@ -116,7 +135,7 @@ function formatProps(props) {
 }
 function Element(tag, props, ...children) {
     const propString = props ? ` ${formatProps(props)}`.trimEnd() : "";
-    const loadedChildren = children.map((content) => {
+    const loadedChildren = spread(children).map((content) => {
         if (!content) {
             return "";
         }
@@ -125,6 +144,17 @@ function Element(tag, props, ...children) {
         }
         return content;
     });
+    if (props && props.children) {
+        loadedChildren.push(...spread(props.children).map((content) => {
+            if (!content) {
+                return "";
+            }
+            if (["script", "style"].includes(tag)) {
+                return loadEmbeddedFileTemplate(content.trim()) ?? content;
+            }
+            return content;
+        }));
+    }
     const content = loadedChildren.join("");
     const voidElements = [
         "area",

@@ -15,6 +15,29 @@ function toKebabCase(text: string) {
         .toLowerCase();
 }
 
+function spread<T>(items: Array<T | Array<T>>): Array<T> {
+    const spread_: Array<T> = [];
+
+    items.map((x) => {
+        if (Array.isArray(x)) {
+            spread_.push(...spread(x));
+        } else {
+            spread_.push(x);
+        }
+    });
+
+    return spread_;
+}
+
+export function ValidHTML(htmlString: string) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlString, "application/xml");
+
+    const errorNode = doc.querySelector("parsererror");
+
+    return !errorNode;
+}
+
 export function EscapeHTML(text: string) {
     return text.replace(
         /[&<>"']/g,
@@ -139,20 +162,38 @@ function formatProps(props: SwiftSSRHTMLElementProps) {
 export function Element(
     tag: HTMLElementTag,
     props: SwiftSSRHTMLElementProps | null,
-    ...children: Array<SwiftSSRElement | null>
+    ...children: Array<SwiftSSRElement | null | Array<SwiftSSRElement | null>>
 ): SwiftSSRElement {
     const propString = props ? ` ${formatProps(props)}`.trimEnd() : "";
-    const loadedChildren = children.map((content) => {
-        if (!content) {
-            return "";
-        }
+    const loadedChildren = spread<SwiftSSRElement | null>(children).map(
+        (content) => {
+            if (!content) {
+                return "";
+            }
 
-        if (["script", "style"].includes(tag)) {
-            return loadEmbeddedFileTemplate(content.trim()) ?? content;
-        }
+            if (["script", "style"].includes(tag)) {
+                return loadEmbeddedFileTemplate(content.trim()) ?? content;
+            }
 
-        return content;
-    });
+            return content;
+        },
+    );
+
+    if (props && props.children) {
+        loadedChildren.push(
+            ...spread<SwiftSSRElement | null>(props.children).map((content) => {
+                if (!content) {
+                    return "";
+                }
+
+                if (["script", "style"].includes(tag)) {
+                    return loadEmbeddedFileTemplate(content.trim()) ?? content;
+                }
+
+                return content;
+            }),
+        );
+    }
 
     const content = loadedChildren.join("");
 

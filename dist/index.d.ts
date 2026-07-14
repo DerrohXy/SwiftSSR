@@ -1,8 +1,9 @@
 import { HTMLElementTag, SwiftSSRHTMLElementProps, SwiftSSRElement } from "./types";
+export declare function ValidHTML(htmlString: string): boolean;
 export declare function EscapeHTML(text: string): string;
 export declare function LoadEmbeddedFile(embeddedPath: string): string | null;
 export declare function loadEmbeddedFileTemplate(content: string): string | null;
-export declare function Element(tag: HTMLElementTag, props: SwiftSSRHTMLElementProps | null, ...children: Array<SwiftSSRElement | null>): SwiftSSRElement;
+export declare function Element(tag: HTMLElementTag, props: SwiftSSRHTMLElementProps | null, ...children: Array<SwiftSSRElement | null | Array<SwiftSSRElement | null>>): SwiftSSRElement;
 export declare function EmbeddedJS(code: string, props?: SwiftSSRHTMLElementProps): SwiftSSRElement;
 export declare function EmbeddedCSS(code: string, props?: SwiftSSRHTMLElementProps): SwiftSSRElement;
 type DocumentProps = {
