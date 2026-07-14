@@ -679,7 +679,7 @@ export type SwiftSSRHTMLElementProps = HTMLBaseElementProps &
     HTMLEventListenerProps & {
         style?: CSSProps;
         className?: ClassValue;
-        children?: Array<SwiftSSRElement>;
+        children?: Array<SwiftSSRElement> | SwiftSSRElement;
         [key: string]: any;
     };
 

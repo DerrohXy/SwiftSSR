@@ -15,7 +15,11 @@ function toKebabCase(text: string) {
         .toLowerCase();
 }
 
-function spread<T>(items: Array<T | Array<T>>): Array<T> {
+function spread<T>(items: Array<T | Array<T>> | T): Array<T> {
+    if (!Array.isArray(items)) {
+        return [items];
+    }
+
     const spread_: Array<T> = [];
 
     items.map((x) => {

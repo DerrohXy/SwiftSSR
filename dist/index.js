@@ -22,6 +22,9 @@ function toKebabCase(text) {
         .toLowerCase();
 }
 function spread(items) {
+    if (!Array.isArray(items)) {
+        return [items];
+    }
     const spread_ = [];
     items.map((x) => {
         if (Array.isArray(x)) {
