@@ -137,7 +137,6 @@ function formatProps(props) {
         .join(" "));
 }
 function Element(tag, props, ...children) {
-    const propString = props ? ` ${formatProps(props)}`.trimEnd() : "";
     const loadedChildren = spread(children).map((content) => {
         if (!content) {
             return "";
@@ -157,7 +156,9 @@ function Element(tag, props, ...children) {
             }
             return content;
         }));
+        props.children = undefined;
     }
+    const propString = props ? ` ${formatProps(props)}`.trimEnd() : "";
     const content = loadedChildren.join("");
     const voidElements = [
         "area",

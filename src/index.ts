@@ -168,7 +168,6 @@ export function Element(
     props: SwiftSSRHTMLElementProps | null,
     ...children: Array<SwiftSSRElement | null | Array<SwiftSSRElement | null>>
 ): SwiftSSRElement {
-    const propString = props ? ` ${formatProps(props)}`.trimEnd() : "";
     const loadedChildren = spread<SwiftSSRElement | null>(children).map(
         (content) => {
             if (!content) {
@@ -197,8 +196,11 @@ export function Element(
                 return content;
             }),
         );
+
+        props.children = undefined;
     }
 
+    const propString = props ? ` ${formatProps(props)}`.trimEnd() : "";
     const content = loadedChildren.join("");
 
     const voidElements = [
