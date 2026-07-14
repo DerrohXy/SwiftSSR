@@ -186,29 +186,22 @@ export function Element(
         },
     );
 
-    if (children.length < 1) {
-        if (props && props.children) {
-            loadedChildren.push(
-                ...spread<SwiftSSRElement | null>(props.children).map(
-                    (content) => {
-                        if (!content) {
-                            return "";
-                        }
+    if (props && props.children) {
+        loadedChildren.push(
+            ...spread<SwiftSSRElement | null>(props.children).map((content) => {
+                if (!content) {
+                    return "";
+                }
 
-                        if (["script", "style"].includes(tag)) {
-                            return (
-                                loadEmbeddedFileTemplate(content.trim()) ??
-                                content
-                            );
-                        }
+                if (["script", "style"].includes(tag)) {
+                    return loadEmbeddedFileTemplate(content.trim()) ?? content;
+                }
 
-                        return content;
-                    },
-                ),
-            );
+                return content;
+            }),
+        );
 
-            props.children = undefined;
-        }
+        props.children = undefined;
     }
 
     const propString = props ? ` ${formatProps(props)}`.trimEnd() : "";

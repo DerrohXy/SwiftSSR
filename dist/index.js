@@ -148,20 +148,17 @@ function Element(tag, props, ...children) {
         }
         return content;
     });
-    if (children.length < 1) {
-        if (props && props.children) {
-            loadedChildren.push(...spread(props.children).map((content) => {
-                if (!content) {
-                    return "";
-                }
-                if (["script", "style"].includes(tag)) {
-                    return (loadEmbeddedFileTemplate(content.trim()) ??
-                        content);
-                }
-                return content;
-            }));
-            props.children = undefined;
-        }
+    if (props && props.children) {
+        loadedChildren.push(...spread(props.children).map((content) => {
+            if (!content) {
+                return "";
+            }
+            if (["script", "style"].includes(tag)) {
+                return loadEmbeddedFileTemplate(content.trim()) ?? content;
+            }
+            return content;
+        }));
+        props.children = undefined;
     }
     const propString = props ? ` ${formatProps(props)}`.trimEnd() : "";
     const content = loadedChildren.join("");
