@@ -1,250 +1,37 @@
-export type HTMLSvgTag =
-    | "svg"
-    | "path"
-    | "circle"
-    | "ellipse"
-    | "line"
-    | "polygon"
-    | "polyline"
-    | "rect"
-    | "g"
-    | "title"
-    | "defs"
-    | "clipPath"
-    | "stop"
-    | "linearGradient"
-    | "radialGradient";
-
-export type HTMLElementTag =
-    | HTMLSvgTag
-    | "a"
-    | "abbr"
-    | "address"
-    | "area"
-    | "article"
-    | "aside"
-    | "audio"
-    | "b"
-    | "base"
-    | "bdi"
-    | "bdo"
-    | "blockquote"
-    | "body"
-    | "br"
-    | "button"
-    | "canvas"
-    | "caption"
-    | "cite"
-    | "code"
-    | "col"
-    | "colgroup"
-    | "data"
-    | "datalist"
-    | "dd"
-    | "del"
-    | "details"
-    | "dfn"
-    | "dialog"
-    | "div"
-    | "dl"
-    | "dt"
-    | "em"
-    | "embed"
-    | "fieldset"
-    | "figcaption"
-    | "figure"
-    | "footer"
-    | "form"
-    | "h1"
-    | "h2"
-    | "h3"
-    | "h4"
-    | "h5"
-    | "h6"
-    | "head"
-    | "header"
-    | "hgroup"
-    | "hr"
-    | "html"
-    | "i"
-    | "iframe"
-    | "img"
-    | "input"
-    | "ins"
-    | "kbd"
-    | "label"
-    | "legend"
-    | "li"
-    | "link"
-    | "main"
-    | "map"
-    | "mark"
-    | "menu"
-    | "meta"
-    | "meter"
-    | "nav"
-    | "noscript"
-    | "object"
-    | "ol"
-    | "optgroup"
-    | "option"
-    | "output"
-    | "p"
-    | "picture"
-    | "pre"
-    | "progress"
-    | "q"
-    | "rp"
-    | "rt"
-    | "ruby"
-    | "s"
-    | "samp"
-    | "script"
-    | "section"
-    | "select"
-    | "slot"
-    | "small"
-    | "source"
-    | "span"
-    | "strong"
-    | "style"
-    | "sub"
-    | "summary"
-    | "sup"
-    | "table"
-    | "tbody"
-    | "td"
-    | "template"
-    | "textarea"
-    | "tfoot"
-    | "th"
-    | "thead"
-    | "time"
-    | "title"
-    | "tr"
-    | "track"
-    | "u"
-    | "ul"
-    | "var"
-    | "video"
-    | "wbr"
-    | "url"
-    | "loc"
-    | "lastmod"
-    | "priority"
-    | "urlset";
-
+export type HTMLSvgTag = "svg" | "path" | "circle" | "ellipse" | "line" | "polygon" | "polyline" | "rect" | "g" | "title" | "defs" | "clipPath" | "stop" | "linearGradient" | "radialGradient";
+export type HTMLElementTag = HTMLSvgTag | "a" | "abbr" | "address" | "area" | "article" | "aside" | "audio" | "b" | "base" | "bdi" | "bdo" | "blockquote" | "body" | "br" | "button" | "canvas" | "caption" | "cite" | "code" | "col" | "colgroup" | "data" | "datalist" | "dd" | "del" | "details" | "dfn" | "dialog" | "div" | "dl" | "dt" | "em" | "embed" | "fieldset" | "figcaption" | "figure" | "footer" | "form" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "head" | "header" | "hgroup" | "hr" | "html" | "i" | "iframe" | "img" | "input" | "ins" | "kbd" | "label" | "legend" | "li" | "link" | "main" | "map" | "mark" | "menu" | "meta" | "meter" | "nav" | "noscript" | "object" | "ol" | "optgroup" | "option" | "output" | "p" | "picture" | "pre" | "progress" | "q" | "rp" | "rt" | "ruby" | "s" | "samp" | "script" | "section" | "select" | "slot" | "small" | "source" | "span" | "strong" | "style" | "sub" | "summary" | "sup" | "table" | "tbody" | "td" | "template" | "textarea" | "tfoot" | "th" | "thead" | "time" | "title" | "tr" | "track" | "u" | "ul" | "var" | "video" | "wbr" | "url" | "loc" | "lastmod" | "priority" | "urlset";
 export type CSSProps = {
-    // Background
     background?: string;
     backgroundAttachment?: "scroll" | "fixed" | "local" | string;
     backgroundColor?: string;
     backgroundImage?: string;
     backgroundPosition?: string;
-    backgroundRepeat?:
-        | "repeat"
-        | "repeat-x"
-        | "repeat-y"
-        | "no-repeat"
-        | string;
-
-    // Border
+    backgroundRepeat?: "repeat" | "repeat-x" | "repeat-y" | "no-repeat" | string;
     border?: string;
     borderBottom?: string;
     borderBottomColor?: string;
-    borderBottomStyle?:
-        | "none"
-        | "hidden"
-        | "dotted"
-        | "dashed"
-        | "solid"
-        | "double"
-        | "groove"
-        | "ridge"
-        | "inset"
-        | "outset"
-        | string;
+    borderBottomStyle?: "none" | "hidden" | "dotted" | "dashed" | "solid" | "double" | "groove" | "ridge" | "inset" | "outset" | string;
     borderBottomWidth?: string;
     borderColor?: string;
     borderLeft?: string;
     borderLeftColor?: string;
-    borderLeftStyle?:
-        | "none"
-        | "hidden"
-        | "dotted"
-        | "dashed"
-        | "solid"
-        | "double"
-        | "groove"
-        | "ridge"
-        | "inset"
-        | "outset"
-        | string;
+    borderLeftStyle?: "none" | "hidden" | "dotted" | "dashed" | "solid" | "double" | "groove" | "ridge" | "inset" | "outset" | string;
     borderLeftWidth?: string;
     borderRadius?: string;
     borderRight?: string;
     borderRightColor?: string;
-    borderRightStyle?:
-        | "none"
-        | "hidden"
-        | "dotted"
-        | "dashed"
-        | "solid"
-        | "double"
-        | "groove"
-        | "ridge"
-        | "inset"
-        | "outset"
-        | string;
+    borderRightStyle?: "none" | "hidden" | "dotted" | "dashed" | "solid" | "double" | "groove" | "ridge" | "inset" | "outset" | string;
     borderRightWidth?: string;
-    borderStyle?:
-        | "none"
-        | "hidden"
-        | "dotted"
-        | "dashed"
-        | "solid"
-        | "double"
-        | "groove"
-        | "ridge"
-        | "inset"
-        | "outset"
-        | string;
+    borderStyle?: "none" | "hidden" | "dotted" | "dashed" | "solid" | "double" | "groove" | "ridge" | "inset" | "outset" | string;
     borderTop?: string;
     borderTopColor?: string;
-    borderTopStyle?:
-        | "none"
-        | "hidden"
-        | "dotted"
-        | "dashed"
-        | "solid"
-        | "double"
-        | "groove"
-        | "ridge"
-        | "inset"
-        | "outset"
-        | string;
+    borderTopStyle?: "none" | "hidden" | "dotted" | "dashed" | "solid" | "double" | "groove" | "ridge" | "inset" | "outset" | string;
     borderTopWidth?: string;
     borderWidth?: string;
-
-    // Box & Display
     boxShadow?: string;
     boxSizing?: "border-box" | "content-box" | string;
     clear?: "none" | "left" | "right" | "both" | string;
-    display?:
-        | "none"
-        | "block"
-        | "inline"
-        | "inline-block"
-        | "flex"
-        | "grid"
-        | "inline-flex"
-        | "inline-grid"
-        | "contents"
-        | "list-item"
-        | "table"
-        | "table-row"
-        | "table-cell"
-        | string;
+    display?: "none" | "block" | "inline" | "inline-block" | "flex" | "grid" | "inline-flex" | "inline-grid" | "contents" | "list-item" | "table" | "table-row" | "table-cell" | string;
     float?: "none" | "left" | "right" | "inline-start" | "inline-end" | string;
     width?: string;
     height?: string;
@@ -262,164 +49,47 @@ export type CSSProps = {
     marginLeft?: string;
     marginRight?: string;
     marginBottom?: string;
-
-    // Position
     position?: "static" | "relative" | "absolute" | "fixed" | "sticky" | string;
     top?: string;
     right?: string;
     bottom?: string;
     left?: string;
     zIndex?: number | string;
-
-    // Overflow
     overflow?: "visible" | "hidden" | "scroll" | "auto" | string;
     overflowX?: "visible" | "hidden" | "scroll" | "auto" | string;
     overflowY?: "visible" | "hidden" | "scroll" | "auto" | string;
-
-    // Visibility
     visibility?: "visible" | "hidden" | "collapse" | string;
-
-    // Typography
     color?: string;
     fontFamily?: string;
     fontSize?: string;
     fontStyle?: "normal" | "italic" | "oblique" | string;
     fontVariant?: string;
-    fontWeight?:
-        | "normal"
-        | "bold"
-        | "bolder"
-        | "lighter"
-        | "100"
-        | "200"
-        | "300"
-        | "400"
-        | "500"
-        | "600"
-        | "700"
-        | "800"
-        | "900"
-        | string;
+    fontWeight?: "normal" | "bold" | "bolder" | "lighter" | "100" | "200" | "300" | "400" | "500" | "600" | "700" | "800" | "900" | string;
     letterSpacing?: string;
     lineHeight?: string;
-    textAlign?:
-        | "left"
-        | "right"
-        | "center"
-        | "justify"
-        | "start"
-        | "end"
-        | string;
-    textDecoration?:
-        | "none"
-        | "underline"
-        | "overline"
-        | "line-through"
-        | string;
+    textAlign?: "left" | "right" | "center" | "justify" | "start" | "end" | string;
+    textDecoration?: "none" | "underline" | "overline" | "line-through" | string;
     textOverflow?: "clip" | "ellipsis" | string;
     textTransform?: "none" | "capitalize" | "uppercase" | "lowercase" | string;
     whiteSpace?: "normal" | "nowrap" | "pre" | "pre-line" | "pre-wrap" | string;
-
-    // Flex
-    alignItems?:
-        | "stretch"
-        | "center"
-        | "flex-start"
-        | "flex-end"
-        | "baseline"
-        | string;
-    alignContent?:
-        | "stretch"
-        | "center"
-        | "flex-start"
-        | "flex-end"
-        | "space-between"
-        | "space-around"
-        | string;
-    alignSelf?:
-        | "auto"
-        | "stretch"
-        | "center"
-        | "flex-start"
-        | "flex-end"
-        | "baseline"
-        | string;
-    justifyContent?:
-        | "flex-start"
-        | "flex-end"
-        | "center"
-        | "space-between"
-        | "space-around"
-        | "space-evenly"
-        | string;
-    flexDirection?:
-        | "row"
-        | "row-reverse"
-        | "column"
-        | "column-reverse"
-        | string;
+    alignItems?: "stretch" | "center" | "flex-start" | "flex-end" | "baseline" | string;
+    alignContent?: "stretch" | "center" | "flex-start" | "flex-end" | "space-between" | "space-around" | string;
+    alignSelf?: "auto" | "stretch" | "center" | "flex-start" | "flex-end" | "baseline" | string;
+    justifyContent?: "flex-start" | "flex-end" | "center" | "space-between" | "space-around" | "space-evenly" | string;
+    flexDirection?: "row" | "row-reverse" | "column" | "column-reverse" | string;
     flexWrap?: "nowrap" | "wrap" | "wrap-reverse" | string;
-
-    // Cursor
-    cursor?:
-        | "auto"
-        | "default"
-        | "pointer"
-        | "wait"
-        | "text"
-        | "move"
-        | "not-allowed"
-        | "crosshair"
-        | "zoom-in"
-        | "zoom-out"
-        | string;
-
-    // Animation
-    animationDirection?:
-        | "normal"
-        | "reverse"
-        | "alternate"
-        | "alternate-reverse"
-        | string;
+    cursor?: "auto" | "default" | "pointer" | "wait" | "text" | "move" | "not-allowed" | "crosshair" | "zoom-in" | "zoom-out" | string;
+    animationDirection?: "normal" | "reverse" | "alternate" | "alternate-reverse" | string;
     animationFillMode?: "none" | "forwards" | "backwards" | "both" | string;
     animationPlayState?: "running" | "paused" | string;
-    animationTimingFunction?:
-        | "ease"
-        | "linear"
-        | "ease-in"
-        | "ease-out"
-        | "ease-in-out"
-        | string;
-
-    // Misc
+    animationTimingFunction?: "ease" | "linear" | "ease-in" | "ease-out" | "ease-in-out" | string;
     opacity?: string | number;
-    pointerEvents?:
-        | "auto"
-        | "none"
-        | "visiblePainted"
-        | "visibleFill"
-        | "visibleStroke"
-        | "visible"
-        | "painted"
-        | "fill"
-        | "stroke"
-        | "all"
-        | string;
+    pointerEvents?: "auto" | "none" | "visiblePainted" | "visibleFill" | "visibleStroke" | "visible" | "painted" | "fill" | "stroke" | "all" | string;
     resize?: "none" | "both" | "horizontal" | "vertical" | string;
     userSelect?: "auto" | "text" | "none" | "contain" | "all" | string;
-
-    // Any unknown props
     [key: string]: any;
 };
-
-export type ClassValue =
-    | string
-    | number
-    | Record<string, boolean>
-    | ClassValue[]
-    | null
-    | undefined;
-
+export type ClassValue = string | number | Record<string, boolean> | ClassValue[] | null | undefined;
 /**
  * A rendered/renderable text node. `raw: true` means the value is trusted
  * markup/code (e.g. loaded script/style content) and must NOT be
@@ -431,7 +101,6 @@ export type SwiftSSRTextNode = {
     value: string;
     raw: boolean;
 };
-
 /**
  * A rendered/renderable element node: a tag, its (already-normalized)
  * attributes, and its child nodes.
@@ -442,66 +111,31 @@ export type SwiftSSRElementNode = {
     props: SwiftSSRHTMLElementProps | null;
     children: SwiftSSRElement[];
 };
-
 /**
  * The result of `Element(...)` / a JSX expression. No longer a plain
  * string — it's a small tree describing either a text node or an element
  * with children. Call `Render()` to turn it into an HTML string.
  */
 export type SwiftSSRElement = SwiftSSRTextNode | SwiftSSRElementNode;
-
 /**
  * Anything that can be passed where a child is expected: a built element,
  * a string/number (turned into an escaped text node), a nullish/false
  * value (skipped), or a (possibly nested) array of any of the above.
  */
-export type SwiftSSRChild =
-    | SwiftSSRElement
-    | string
-    | number
-    | null
-    | undefined
-    | boolean;
-
+export type SwiftSSRChild = SwiftSSRElement | string | number | null | undefined | boolean;
 export type SwiftSSRChildren = SwiftSSRChild | SwiftSSRChildren[];
-
 export type HTMLBaseElementProps = {
-    // Global attributes
     accesskey?: string;
-    autocapitalize?:
-        | "off"
-        | "none"
-        | "on"
-        | "sentences"
-        | "words"
-        | "characters"
-        | string;
+    autocapitalize?: "off" | "none" | "on" | "sentences" | "words" | "characters" | string;
     class?: string;
     contenteditable?: boolean | "true" | "false";
     contextmenu?: string;
     dir?: "ltr" | "rtl" | "auto";
     draggable?: boolean | "true" | "false";
-    enterkeyhint?:
-        | "enter"
-        | "done"
-        | "go"
-        | "next"
-        | "previous"
-        | "search"
-        | "send"
-        | string;
+    enterkeyhint?: "enter" | "done" | "go" | "next" | "previous" | "search" | "send" | string;
     hidden?: boolean | "true" | "false";
     id?: string;
-    inputmode?:
-        | "none"
-        | "text"
-        | "decimal"
-        | "numeric"
-        | "tel"
-        | "search"
-        | "email"
-        | "url"
-        | string;
+    inputmode?: "none" | "text" | "decimal" | "numeric" | "tel" | "search" | "email" | "url" | string;
     is?: string;
     lang?: string;
     nonce?: string;
@@ -511,8 +145,6 @@ export type HTMLBaseElementProps = {
     tabindex?: number | string;
     title?: string;
     translate?: "yes" | "no";
-
-    // Form-related attributes
     accept?: string;
     action?: string;
     autofocus?: boolean | "true" | "false";
@@ -523,11 +155,7 @@ export type HTMLBaseElementProps = {
     disabled?: boolean | "true" | "false";
     form?: string;
     formaction?: string;
-    formenctype?:
-        | "application/x-www-form-urlencoded"
-        | "multipart/form-data"
-        | "text/plain"
-        | string;
+    formenctype?: "application/x-www-form-urlencoded" | "multipart/form-data" | "text/plain" | string;
     formmethod?: "get" | "post" | "dialog" | string;
     formnovalidate?: boolean | "true" | "false";
     formtarget?: "_self" | "_blank" | "_parent" | "_top" | string;
@@ -550,8 +178,6 @@ export type HTMLBaseElementProps = {
     step?: number | string;
     value?: string | number;
     wrap?: "hard" | "soft" | "off" | string;
-
-    // Media-related attributes
     alt?: string;
     autoplay?: boolean | "true" | "false";
     controls?: boolean | "true" | "false";
@@ -561,31 +187,13 @@ export type HTMLBaseElementProps = {
     poster?: string;
     preload?: "none" | "metadata" | "auto" | string;
     width?: string | number;
-
-    // Anchor & link-related
     download?: boolean | string;
     href?: string;
     hreflang?: string;
     media?: string;
     ping?: string;
-    rel?:
-        | "alternate"
-        | "author"
-        | "bookmark"
-        | "external"
-        | "help"
-        | "license"
-        | "next"
-        | "nofollow"
-        | "noopener"
-        | "noreferrer"
-        | "prev"
-        | "search"
-        | "tag"
-        | string;
+    rel?: "alternate" | "author" | "bookmark" | "external" | "help" | "license" | "next" | "nofollow" | "noopener" | "noreferrer" | "prev" | "search" | "tag" | string;
     target?: "_self" | "_blank" | "_parent" | "_top" | string;
-
-    // Script attributes
     async?: boolean | "true" | "false";
     defer?: boolean | "true" | "false";
     src?: string;
@@ -593,21 +201,9 @@ export type HTMLBaseElementProps = {
     crossorigin?: "anonymous" | "use-credentials" | string;
     integrity?: string;
     nomodule?: boolean | "true" | "false";
-    referrerpolicy?:
-        | "no-referrer"
-        | "no-referrer-when-downgrade"
-        | "origin"
-        | "origin-when-cross-origin"
-        | "same-origin"
-        | "strict-origin"
-        | "strict-origin-when-cross-origin"
-        | "unsafe-url"
-        | string;
-
-    // Allow any other attribute or custom prop
+    referrerpolicy?: "no-referrer" | "no-referrer-when-downgrade" | "origin" | "origin-when-cross-origin" | "same-origin" | "strict-origin" | "strict-origin-when-cross-origin" | "unsafe-url" | string;
     [key: string]: any;
 };
-
 export type HTMLEventListenerProps = {
     onafterprint?: string;
     onanimationcancel?: string;
@@ -716,14 +312,11 @@ export type HTMLEventListenerProps = {
     onwebkitanimationiteration?: string;
     onwebkitanimationstart?: string;
     onwebkittransitionend?: string;
-    //
     [key: string]: any;
 };
-
-export type SwiftSSRHTMLElementProps = HTMLBaseElementProps &
-    HTMLEventListenerProps & {
-        style?: CSSProps;
-        className?: ClassValue;
-        children?: SwiftSSRChildren;
-        [key: string]: any;
-    };
+export type SwiftSSRHTMLElementProps = HTMLBaseElementProps & HTMLEventListenerProps & {
+    style?: CSSProps;
+    className?: ClassValue;
+    children?: SwiftSSRChildren;
+    [key: string]: any;
+};

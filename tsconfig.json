@@ -1,13 +1,15 @@
 {
     "compilerOptions": {
         "target": "es2020",
-        "module": "commonjs",
+        "module": "es2015",
         "lib": ["DOM", "ESNext"],
         "declaration": true,
         "outDir": "./dist",
+        "rootDir": ".",
         "strict": true,
         "esModuleInterop": true,
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
+        "types": ["node"],
         "skipLibCheck": true,
         "sourceMap": false,
         "jsx": "react-jsx",
