@@ -1,7 +1,7 @@
 import { SwiftSSRHTMLElementProps, HTMLElementTag, SwiftSSRElement } from "./types";
 type SwiftSSRJSXTag = HTMLElementTag | ((props: SwiftSSRHTMLElementProps) => SwiftSSRElement);
-type SwiftSSRJSXChild = SwiftSSRJSXParameters | SwiftSSRElement;
-type SwiftSSRJSXChildren = SwiftSSRJSXChild | Array<SwiftSSRJSXChild>;
+type SwiftSSRJSXChild = SwiftSSRJSXParameters | SwiftSSRElement | string | number | null | undefined | boolean;
+type SwiftSSRJSXChildren = SwiftSSRJSXChild | SwiftSSRJSXChildren[];
 type SwiftSSRJSXProps = SwiftSSRHTMLElementProps & {
     children?: SwiftSSRJSXChildren;
 };
@@ -11,11 +11,8 @@ type SwiftSSRJSXParameters = {
     key: any;
 };
 /**
- * Generates a render element from a JSX tag
- * @param type Tag to parse
- * @param props Props to parse to the component function
- * @param key #Ignored
- * @returns
+ * Generates a render element (a `SwiftSSRElement` node, not a string) from
+ * a JSX tag. Call `Render()` on the result to get HTML.
  */
 export declare function jsx(type: SwiftSSRJSXTag, props?: SwiftSSRJSXProps, key?: any): SwiftSSRElement;
 export declare const jsxs: typeof jsx;

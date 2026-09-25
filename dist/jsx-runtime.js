@@ -1,77 +1,60 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.jsxs = void 0;
-exports.jsx = jsx;
-const index_1 = require("./index");
-/***
- * Recursively parses a child entry
+import { Element } from "./index";
+function isJSXParameters(value) {
+    return (typeof value === "object" &&
+        value !== null &&
+        "type" in value &&
+        "props" in value);
+}
+/**
+ * Recursively resolves JSX children down to something `Element` accepts:
+ * strings/numbers, already-built `SwiftSSRElement`s, nested arrays, or
+ * null/undefined/boolean (skipped). Unresolved `{ type, props, key }`
+ * JSX parameter objects are turned into real elements via `jsx()`.
  */
 function _parseChild(child) {
-    if (!child) {
+    if (child === null || child === undefined || typeof child === "boolean") {
         return null;
     }
-    if (child.type) {
+    if (Array.isArray(child)) {
+        return child.map((c) => _parseChild(c));
+    }
+    if (isJSXParameters(child)) {
         return jsx(child.type, child.props, child.key);
     }
-    else {
-        return child;
-    }
+    return child;
 }
 /**
  * Incase the children parameter is not empty
- * @param type
- * @param props
- * @param key
- * @returns
  */
 function _withChildren(type, props, key) {
-    if (Array.isArray(props.children)) {
-        let parsedChildren_ = props.children.map((child) => {
-            return _parseChild(child);
-        });
-        delete props.children;
-        return (0, index_1.Element)(type, props, ...parsedChildren_);
-    }
-    else {
-        let parsedChild_ = _parseChild(props.children);
-        delete props.children;
-        return (0, index_1.Element)(type, props, parsedChild_);
-    }
+    const parsedChildren = _parseChild(props.children);
+    const { children: _omit, ...rest } = props;
+    return Element(type, rest, parsedChildren);
 }
 /**
  * In case of non empty props
- * @param type
- * @param props
- * @param key
- * @returns
  */
 function _withProps(type, props, key) {
     if (typeof type === "function") {
         return type(props);
     }
     else {
-        return props.children
+        return props.children !== undefined
             ? _withChildren(type, props, key)
-            : (0, index_1.Element)(type, props);
+            : Element(type, props);
     }
 }
 /**
  * In case of empty props
- * @param type
- * @param key
- * @returns
  */
 function _withoutProps(type, key) {
-    return typeof type === "string" ? (0, index_1.Element)(type, {}) : type({});
+    return typeof type === "string" ? Element(type, {}) : type({});
 }
 /**
- * Generates a render element from a JSX tag
- * @param type Tag to parse
- * @param props Props to parse to the component function
- * @param key #Ignored
- * @returns
+ * Generates a render element (a `SwiftSSRElement` node, not a string) from
+ * a JSX tag. Call `Render()` on the result to get HTML.
  */
-function jsx(type, props, key) {
+export function jsx(type, props, key) {
     if (props) {
         return _withProps(type, props, key);
     }
@@ -79,4 +62,4 @@ function jsx(type, props, key) {
         return _withoutProps(type, key);
     }
 }
-exports.jsxs = jsx;
+export const jsxs = jsx;

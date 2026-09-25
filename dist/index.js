@@ -1,19 +1,25 @@
-"use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ValidHTML = ValidHTML;
-exports.EscapeHTML = EscapeHTML;
-exports.LoadEmbeddedFile = LoadEmbeddedFile;
-exports.loadEmbeddedFileTemplate = loadEmbeddedFileTemplate;
-exports.Element = Element;
-exports.EmbeddedJS = EmbeddedJS;
-exports.EmbeddedCSS = EmbeddedCSS;
-exports.Document = Document;
-exports.GenerateSitemap = GenerateSitemap;
-const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
+import fs from "fs";
+import path from "path";
+const VOID_ELEMENTS = new Set([
+    "area",
+    "base",
+    "br",
+    "col",
+    "embed",
+    "hr",
+    "img",
+    "input",
+    "link",
+    "meta",
+    "param",
+    "source",
+    "track",
+    "wbr",
+]);
+// Tags whose content is code, not visible text. Their children are treated
+// as trusted/raw (never HTML-escaped) and are additionally guarded against
+// accidentally closing their own tag early (see Render()).
+const CODE_TAGS = new Set(["script", "style"]);
 function toKebabCase(text) {
     return text
         .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
@@ -26,7 +32,7 @@ function spread(items) {
         return [items];
     }
     const spread_ = [];
-    items.map((x) => {
+    items.forEach((x) => {
         if (Array.isArray(x)) {
             spread_.push(...spread(x));
         }
@@ -36,13 +42,17 @@ function spread(items) {
     });
     return spread_;
 }
-function ValidHTML(htmlString) {
+export function ValidHTML(htmlString) {
+    // NOTE: this relies on a global `DOMParser`, which is a browser API and
+    // is NOT available in plain Node.js. To use this function server-side,
+    // provide a DOMParser implementation yourself (e.g. via the `jsdom` or
+    // `linkedom` packages) before calling it, or treat it as unsupported.
     const parser = new DOMParser();
     const doc = parser.parseFromString(htmlString, "application/xml");
     const errorNode = doc.querySelector("parsererror");
     return !errorNode;
 }
-function EscapeHTML(text) {
+export function EscapeHTML(text) {
     return text.replace(/[&<>"']/g, (token) => ({
         "&": "&amp;",
         "<": "&lt;",
@@ -51,37 +61,93 @@ function EscapeHTML(text) {
         "'": "&#39;",
     })[token] || token);
 }
+function TextNode(value, raw = false) {
+    return { kind: "text", value, raw };
+}
+/**
+ * Wrap a string as trusted, pre-escaped/raw markup so `Render` inserts it
+ * verbatim instead of HTML-escaping it. Only use this for content you
+ * generated or fully trust — never wrap raw user input in `RawHTML`.
+ */
+export function RawHTML(value) {
+    return TextNode(value, true);
+}
+function isSwiftSSRElement(value) {
+    return (typeof value === "object" &&
+        value !== null &&
+        "kind" in value &&
+        (value.kind === "text" || value.kind === "element"));
+}
+function normalizeChild(child) {
+    if (child === null ||
+        child === undefined ||
+        child === false ||
+        child === true) {
+        return null;
+    }
+    if (typeof child === "string" || typeof child === "number") {
+        // Plain text children are escaped by default when rendered.
+        return TextNode(String(child));
+    }
+    if (isSwiftSSRElement(child)) {
+        return child;
+    }
+    return null;
+}
 function extractEmbeddedLoadPath(value) {
     const match = value.match(/^LOAD\("(.+)"\)$/);
     return match ? match[1] : null;
 }
-function LoadEmbeddedFile(embeddedPath) {
+/**
+ * Reads a file from disk, sandboxed to the `swiftSSRScriptsRoot` (or
+ * `SwiftSSRScriptsRoot`) directory declared in the project's package.json.
+ *
+ * `embeddedPath` is never trusted as-is: absolute paths are rejected
+ * outright, and the resolved path is verified to still live inside the
+ * configured scripts root before it's read, so a value like
+ * `../../../../etc/passwd` cannot escape the sandbox.
+ */
+export function LoadEmbeddedFile(embeddedPath) {
     try {
-        const cwd = process.cwd();
-        const packageJsonPath = path_1.default.join(cwd, "package.json");
-        if (!fs_1.default.existsSync(packageJsonPath)) {
+        if (typeof embeddedPath !== "string" ||
+            embeddedPath.length === 0 ||
+            embeddedPath.includes("\0") ||
+            path.isAbsolute(embeddedPath)) {
             return null;
         }
-        const packageJson = JSON.parse(fs_1.default.readFileSync(packageJsonPath, "utf8"));
+        const cwd = process.cwd();
+        const packageJsonPath = path.join(cwd, "package.json");
+        if (!fs.existsSync(packageJsonPath)) {
+            return null;
+        }
+        const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
         const scriptsRoot = packageJson.swiftSSRScriptsRoot || packageJson.SwiftSSRScriptsRoot;
         if (!scriptsRoot || typeof scriptsRoot !== "string") {
             return null;
         }
-        const fullPath = path_1.default.resolve(cwd, scriptsRoot, embeddedPath);
-        if (!fs_1.default.existsSync(fullPath)) {
+        const scriptsRootResolved = path.resolve(cwd, scriptsRoot);
+        const fullPath = path.resolve(scriptsRootResolved, embeddedPath);
+        // Sandbox check: fullPath must remain inside scriptsRootResolved.
+        const relativeToRoot = path.relative(scriptsRootResolved, fullPath);
+        const escapesRoot = relativeToRoot.startsWith(`..${path.sep}`) ||
+            relativeToRoot === ".." ||
+            path.isAbsolute(relativeToRoot);
+        if (escapesRoot) {
             return null;
         }
-        return fs_1.default.readFileSync(fullPath, "utf8");
+        if (!fs.existsSync(fullPath)) {
+            return null;
+        }
+        return fs.readFileSync(fullPath, "utf8");
     }
     catch {
         return null;
     }
 }
-function loadEmbeddedFileTemplate(content) {
-    let loadingPath = extractEmbeddedLoadPath(content);
+export function loadEmbeddedFileTemplate(content) {
+    const loadingPath = extractEmbeddedLoadPath(content);
     if (loadingPath) {
-        let loadedContent = LoadEmbeddedFile(loadingPath);
-        return loadedContent;
+        return LoadEmbeddedFile(loadingPath);
     }
     return null;
 }
@@ -108,11 +174,16 @@ function classNames(...args) {
     return classes.join(" ");
 }
 function formatProps(props) {
-    return (Object.entries(props)
+    return Object.entries(props)
         .map(([key, value]) => {
+        if (key === "children") {
+            return "";
+        }
         if (value === null ||
             value === undefined ||
-            typeof value === "object") {
+            (typeof value === "object" &&
+                key !== "className" &&
+                key !== "style")) {
             return "";
         }
         if (key === "className") {
@@ -125,7 +196,7 @@ function formatProps(props) {
             const styleString = Object.entries(value)
                 .map(([sKey, sVal]) => `${toKebabCase(sKey)}:${sVal}`)
                 .join("; ");
-            return `style="${styleString}"`;
+            return styleString ? `style="${EscapeHTML(styleString)}"` : "";
         }
         if (value === true) {
             return key;
@@ -135,63 +206,82 @@ function formatProps(props) {
         }
         return `${key}="${EscapeHTML(String(value))}"`;
     })
-        //.filter(Boolean)
-        .join(" "));
+        .filter(Boolean)
+        .join(" ");
 }
-function Element(tag, props, ...children) {
-    const loadedChildren = spread(children).map((content) => {
-        if (!content) {
-            return "";
-        }
-        if (["script", "style"].includes(tag)) {
-            return loadEmbeddedFileTemplate(content.trim()) ?? content;
-        }
-        return content;
-    });
-    if (props && props.children) {
-        loadedChildren.push(...spread(props.children).map((content) => {
-            if (!content) {
-                return "";
-            }
-            if (["script", "style"].includes(tag)) {
-                return loadEmbeddedFileTemplate(content.trim()) ?? content;
-            }
-            return content;
-        }));
-        props.children = undefined;
+/**
+ * Builds a `SwiftSSRElement` node describing this tag, its attributes, and
+ * its children. This does NOT return an HTML string — call `Render()` on
+ * the result (directly, or via `Document`/`GenerateSitemap`) to serialize
+ * it. Plain string/number children become escaped text nodes by default;
+ * wrap trusted markup in `RawHTML(...)` if you need to bypass escaping.
+ */
+export function Element(tag, props, ...children) {
+    const flatChildren = spread(children)
+        .map(normalizeChild)
+        .filter((c) => c !== null);
+    let restProps = props;
+    if (props && props.children !== undefined) {
+        const propChildren = spread(props.children)
+            .map(normalizeChild)
+            .filter((c) => c !== null);
+        flatChildren.push(...propChildren);
+        const { children: _omit, ...rest } = props;
+        restProps = rest;
     }
+    const isCodeTag = CODE_TAGS.has(tag.toLowerCase());
+    const finalChildren = isCodeTag
+        ? flatChildren.map((child) => {
+            if (child.kind === "text" && !child.raw) {
+                const loaded = loadEmbeddedFileTemplate(child.value.trim());
+                return RawHTML(loaded ?? child.value);
+            }
+            return child;
+        })
+        : flatChildren;
+    const node = {
+        kind: "element",
+        tag,
+        props: restProps ?? null,
+        children: finalChildren,
+    };
+    return node;
+}
+/**
+ * Serializes a `SwiftSSRElement` (or a list of them) into an HTML string.
+ * Text nodes are HTML-escaped unless they were created with `RawHTML(...)`.
+ */
+export function Render(node) {
+    if (Array.isArray(node)) {
+        return node.map((n) => Render(n)).join("");
+    }
+    if (!node) {
+        return "";
+    }
+    if (node.kind === "text") {
+        return node.raw ? node.value : EscapeHTML(node.value);
+    }
+    const { tag, props, children } = node;
     const propString = props ? ` ${formatProps(props)}`.trimEnd() : "";
-    const content = loadedChildren.join("");
-    const voidElements = [
-        "area",
-        "base",
-        "br",
-        "col",
-        "embed",
-        "hr",
-        "img",
-        "input",
-        "link",
-        "meta",
-        "param",
-        "source",
-        "track",
-        "wbr",
-    ];
-    if (voidElements.includes(tag.toLowerCase())) {
+    const tagLower = tag.toLowerCase();
+    if (VOID_ELEMENTS.has(tagLower)) {
         return `<${tag}${propString}>`;
+    }
+    let content = children.map((child) => Render(child)).join("");
+    if (CODE_TAGS.has(tagLower)) {
+        // Belt-and-braces: even trusted script/style content shouldn't be
+        // able to prematurely close its own tag.
+        content = content.replace(/<\/(script|style)/gi, "<\\/$1");
     }
     return `<${tag}${propString}>${content}</${tag}>`;
 }
-function EmbeddedJS(code, props) {
-    let embeddedCode = loadEmbeddedFileTemplate(code.trim()) ?? code;
-    return Element("script", props ?? null, embeddedCode.trim());
+export function EmbeddedJS(code, props) {
+    return Element("script", props ?? null, code);
 }
-function EmbeddedCSS(code, props) {
-    let embeddedCode = loadEmbeddedFileTemplate(code.trim()) ?? code;
-    return Element("style", props ?? null, embeddedCode.trim());
+export function EmbeddedCSS(code, props) {
+    return Element("style", props ?? null, code);
 }
-function Document(params) {
+export function Document(params) {
     const defaultMeta = [
         Element("meta", { charset: "UTF-8" }),
         Element("meta", {
@@ -200,27 +290,22 @@ function Document(params) {
         }),
         Element("title", null, params.title || "Generated Page"),
     ];
-    const headContent = (params.head ? [...defaultMeta, ...params.head] : defaultMeta).join("\n    ");
-    const bodyContent = params.body ? params.body.join("\n    ") : "";
-    return [
-        `<!DOCTYPE html>`,
-        `<html lang="${params.lang || "en"}">`,
-        `<head>`,
-        `    ${headContent}`,
-        `</head>`,
-        `<body>`,
-        `    ${bodyContent}`,
-        `</body>`,
-        `</html>`,
-    ].join("\n");
+    const headNodes = params.head
+        ? [...defaultMeta, ...params.head]
+        : defaultMeta;
+    const bodyNodes = params.body ?? [];
+    const htmlNode = Element("html", { lang: params.lang || "en" }, Element("head", null, ...headNodes), Element("body", null, ...bodyNodes));
+    return `<!DOCTYPE html>\n${Render(htmlNode)}`;
 }
-function SitemapUrl(origin, path, lastmod, priority = 0.5) {
+function SitemapUrl(origin, urlPath, lastmod, priority = 0.5) {
     const dateStr = lastmod || new Date().toISOString().split("T")[0];
     const priorityStr = priority.toFixed(1);
-    return Element("url", null, Element("loc", null, `${origin}${path}`), Element("lastmod", null, dateStr), Element("priority", null, priorityStr));
+    // Text children are escaped by default, so `&`/`<`/etc. in origin or
+    // urlPath can no longer produce invalid XML here.
+    return Element("url", null, Element("loc", null, `${origin}${urlPath}`), Element("lastmod", null, dateStr), Element("priority", null, priorityStr));
 }
-function GenerateSitemap(origin, paths) {
-    const urlBlocks = paths.map((path) => SitemapUrl(origin, path));
+export function GenerateSitemap(origin, paths) {
+    const urlBlocks = paths.map((p) => SitemapUrl(origin, p));
     const urlset = Element("urlset", { xmlns: "http://www.sitemaps.org/schemas/sitemap/0.9" }, ...urlBlocks);
-    return `<?xml version="1.0" encoding="UTF-8"?>\n${urlset}`;
+    return `<?xml version="1.0" encoding="UTF-8"?>\n${Render(urlset)}`;
 }

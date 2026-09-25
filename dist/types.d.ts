@@ -90,6 +90,40 @@ export type CSSProps = {
     [key: string]: any;
 };
 export type ClassValue = string | number | Record<string, boolean> | ClassValue[] | null | undefined;
+/**
+ * A rendered/renderable text node. `raw: true` means the value is trusted
+ * markup/code (e.g. loaded script/style content) and must NOT be
+ * HTML-escaped again when rendered. `raw: false` (the default) means the
+ * value is plain text and WILL be HTML-escaped by `Render`.
+ */
+export type SwiftSSRTextNode = {
+    kind: "text";
+    value: string;
+    raw: boolean;
+};
+/**
+ * A rendered/renderable element node: a tag, its (already-normalized)
+ * attributes, and its child nodes.
+ */
+export type SwiftSSRElementNode = {
+    kind: "element";
+    tag: HTMLElementTag;
+    props: SwiftSSRHTMLElementProps | null;
+    children: SwiftSSRElement[];
+};
+/**
+ * The result of `Element(...)` / a JSX expression. No longer a plain
+ * string — it's a small tree describing either a text node or an element
+ * with children. Call `Render()` to turn it into an HTML string.
+ */
+export type SwiftSSRElement = SwiftSSRTextNode | SwiftSSRElementNode;
+/**
+ * Anything that can be passed where a child is expected: a built element,
+ * a string/number (turned into an escaped text node), a nullish/false
+ * value (skipped), or a (possibly nested) array of any of the above.
+ */
+export type SwiftSSRChild = SwiftSSRElement | string | number | null | undefined | boolean;
+export type SwiftSSRChildren = SwiftSSRChild | SwiftSSRChildren[];
 export type HTMLBaseElementProps = {
     accesskey?: string;
     autocapitalize?: "off" | "none" | "on" | "sentences" | "words" | "characters" | string;
@@ -219,7 +253,7 @@ export type HTMLEventListenerProps = {
     onlanguagechange?: string;
     onload?: string;
     onloadeddata?: string;
-    ononloadedmetadata?: string;
+    onloadedmetadata?: string;
     onloadstart?: string;
     onlostpointercapture?: string;
     onmessage?: string;
@@ -283,7 +317,6 @@ export type HTMLEventListenerProps = {
 export type SwiftSSRHTMLElementProps = HTMLBaseElementProps & HTMLEventListenerProps & {
     style?: CSSProps;
     className?: ClassValue;
-    children?: Array<SwiftSSRElement> | SwiftSSRElement;
+    children?: SwiftSSRChildren;
     [key: string]: any;
 };
-export type SwiftSSRElement = string;
