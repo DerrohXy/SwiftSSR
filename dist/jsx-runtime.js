@@ -1,4 +1,4 @@
-import { Element } from "./index";
+import { Element } from "./index.js";
 function isJSXParameters(value) {
     return (typeof value === "object" &&
         value !== null &&

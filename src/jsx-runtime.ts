@@ -32,7 +32,7 @@ type SwiftSSRJSXParameters = {
     key: any;
 };
 
-import { Element } from "./index";
+import { Element } from "./index.js";
 
 function isJSXParameters(value: unknown): value is SwiftSSRJSXParameters {
     return (
