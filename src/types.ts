@@ -1,3 +1,15 @@
+/**
+ * Brand attached to every node SwiftSSR creates. `Symbol.for` makes it survive
+ * duplicate copies of the package, and symbol keys never survive
+ * JSON.stringify/parse, so attacker-supplied JSON can't impersonate a node
+ * (e.g. `{ kind: "text", raw: true, value: "<script>..." }`).
+ */
+export const NODE_BRAND = Symbol.for("swiftssr.node");
+
+// ---------------------------------------------------------------------------
+// Tags
+// ---------------------------------------------------------------------------
+
 export type HTMLSvgTag =
     | "svg"
     | "path"
@@ -8,12 +20,22 @@ export type HTMLSvgTag =
     | "polyline"
     | "rect"
     | "g"
-    | "title"
     | "defs"
     | "clipPath"
     | "stop"
     | "linearGradient"
-    | "radialGradient";
+    | "radialGradient"
+    | "text"
+    | "tspan"
+    | "use"
+    | "symbol"
+    | "mask"
+    | "filter"
+    | "pattern"
+    | "image"
+    | "foreignObject"
+    | "marker"
+    | "desc";
 
 export type HTMLElementTag =
     | HTMLSvgTag
@@ -100,6 +122,7 @@ export type HTMLElementTag =
     | "s"
     | "samp"
     | "script"
+    | "search"
     | "section"
     | "select"
     | "slot"
@@ -127,346 +150,268 @@ export type HTMLElementTag =
     | "ul"
     | "var"
     | "video"
-    | "wbr"
+    | "wbr";
+
+/** Tags used by the built-in sitemap generator (XML, not HTML). */
+export type XMLSitemapTag =
+    | "urlset"
     | "url"
     | "loc"
     | "lastmod"
-    | "priority"
-    | "urlset";
+    | "changefreq"
+    | "priority";
 
-export type CSSProps = {
-    // Background
-    background?: string;
-    backgroundAttachment?: "scroll" | "fixed" | "local" | string;
-    backgroundColor?: string;
-    backgroundImage?: string;
-    backgroundPosition?: string;
-    backgroundRepeat?:
-        | "repeat"
-        | "repeat-x"
-        | "repeat-y"
-        | "no-repeat"
-        | string;
+// ---------------------------------------------------------------------------
+// CSS
+// ---------------------------------------------------------------------------
 
-    // Border
-    border?: string;
-    borderBottom?: string;
-    borderBottomColor?: string;
-    borderBottomStyle?:
-        | "none"
-        | "hidden"
-        | "dotted"
-        | "dashed"
-        | "solid"
-        | "double"
-        | "groove"
-        | "ridge"
-        | "inset"
-        | "outset"
-        | string;
-    borderBottomWidth?: string;
-    borderColor?: string;
-    borderLeft?: string;
-    borderLeftColor?: string;
-    borderLeftStyle?:
-        | "none"
-        | "hidden"
-        | "dotted"
-        | "dashed"
-        | "solid"
-        | "double"
-        | "groove"
-        | "ridge"
-        | "inset"
-        | "outset"
-        | string;
-    borderLeftWidth?: string;
-    borderRadius?: string;
-    borderRight?: string;
-    borderRightColor?: string;
-    borderRightStyle?:
-        | "none"
-        | "hidden"
-        | "dotted"
-        | "dashed"
-        | "solid"
-        | "double"
-        | "groove"
-        | "ridge"
-        | "inset"
-        | "outset"
-        | string;
-    borderRightWidth?: string;
-    borderStyle?:
-        | "none"
-        | "hidden"
-        | "dotted"
-        | "dashed"
-        | "solid"
-        | "double"
-        | "groove"
-        | "ridge"
-        | "inset"
-        | "outset"
-        | string;
-    borderTop?: string;
-    borderTopColor?: string;
-    borderTopStyle?:
-        | "none"
-        | "hidden"
-        | "dotted"
-        | "dashed"
-        | "solid"
-        | "double"
-        | "groove"
-        | "ridge"
-        | "inset"
-        | "outset"
-        | string;
-    borderTopWidth?: string;
-    borderWidth?: string;
+/**
+ * Numbers are allowed: unitless properties (opacity, zIndex, flex, ...) and 0
+ * are emitted as-is, everything else gets `px`.
+ */
+export type CSSValue = string | number | null | undefined | false;
 
-    // Box & Display
-    boxShadow?: string;
-    boxSizing?: "border-box" | "content-box" | string;
-    clear?: "none" | "left" | "right" | "both" | string;
-    display?:
-        | "none"
-        | "block"
-        | "inline"
-        | "inline-block"
-        | "flex"
-        | "grid"
-        | "inline-flex"
-        | "inline-grid"
-        | "contents"
-        | "list-item"
-        | "table"
-        | "table-row"
-        | "table-cell"
-        | string;
-    float?: "none" | "left" | "right" | "inline-start" | "inline-end" | string;
-    width?: string;
-    height?: string;
-    minWidth?: string;
-    minHeight?: string;
-    maxWidth?: string;
-    maxHeight?: string;
-    padding?: string;
-    paddingTop?: string;
-    paddingLeft?: string;
-    paddingBottom?: string;
-    paddingRight?: string;
-    margin?: string;
-    marginTop?: string;
-    marginLeft?: string;
-    marginRight?: string;
-    marginBottom?: string;
+type CSSPropertyName =
+    | "background"
+    | "backgroundAttachment"
+    | "backgroundClip"
+    | "backgroundColor"
+    | "backgroundImage"
+    | "backgroundPosition"
+    | "backgroundRepeat"
+    | "backgroundSize"
+    | "border"
+    | "borderBottom"
+    | "borderBottomColor"
+    | "borderBottomLeftRadius"
+    | "borderBottomRightRadius"
+    | "borderBottomStyle"
+    | "borderBottomWidth"
+    | "borderCollapse"
+    | "borderColor"
+    | "borderLeft"
+    | "borderLeftColor"
+    | "borderLeftStyle"
+    | "borderLeftWidth"
+    | "borderRadius"
+    | "borderRight"
+    | "borderRightColor"
+    | "borderRightStyle"
+    | "borderRightWidth"
+    | "borderSpacing"
+    | "borderStyle"
+    | "borderTop"
+    | "borderTopColor"
+    | "borderTopLeftRadius"
+    | "borderTopRightRadius"
+    | "borderTopStyle"
+    | "borderTopWidth"
+    | "borderWidth"
+    | "boxShadow"
+    | "boxSizing"
+    | "clear"
+    | "display"
+    | "float"
+    | "width"
+    | "height"
+    | "minWidth"
+    | "minHeight"
+    | "maxWidth"
+    | "maxHeight"
+    | "padding"
+    | "paddingTop"
+    | "paddingLeft"
+    | "paddingBottom"
+    | "paddingRight"
+    | "margin"
+    | "marginTop"
+    | "marginLeft"
+    | "marginRight"
+    | "marginBottom"
+    | "position"
+    | "top"
+    | "right"
+    | "bottom"
+    | "left"
+    | "inset"
+    | "zIndex"
+    | "overflow"
+    | "overflowX"
+    | "overflowY"
+    | "visibility"
+    | "color"
+    | "fontFamily"
+    | "fontSize"
+    | "fontStyle"
+    | "fontVariant"
+    | "fontWeight"
+    | "letterSpacing"
+    | "lineHeight"
+    | "textAlign"
+    | "textDecoration"
+    | "textOverflow"
+    | "textTransform"
+    | "textShadow"
+    | "whiteSpace"
+    | "wordBreak"
+    | "verticalAlign"
+    | "alignItems"
+    | "alignContent"
+    | "alignSelf"
+    | "justifyContent"
+    | "justifyItems"
+    | "justifySelf"
+    | "flex"
+    | "flexBasis"
+    | "flexDirection"
+    | "flexFlow"
+    | "flexGrow"
+    | "flexShrink"
+    | "flexWrap"
+    | "gap"
+    | "rowGap"
+    | "columnGap"
+    | "grid"
+    | "gridArea"
+    | "gridAutoFlow"
+    | "gridColumn"
+    | "gridRow"
+    | "gridTemplate"
+    | "gridTemplateAreas"
+    | "gridTemplateColumns"
+    | "gridTemplateRows"
+    | "order"
+    | "placeItems"
+    | "placeContent"
+    | "cursor"
+    | "animation"
+    | "animationDelay"
+    | "animationDirection"
+    | "animationDuration"
+    | "animationFillMode"
+    | "animationIterationCount"
+    | "animationName"
+    | "animationPlayState"
+    | "animationTimingFunction"
+    | "transition"
+    | "transitionDelay"
+    | "transitionDuration"
+    | "transitionProperty"
+    | "transitionTimingFunction"
+    | "transform"
+    | "transformOrigin"
+    | "opacity"
+    | "pointerEvents"
+    | "resize"
+    | "userSelect"
+    | "objectFit"
+    | "objectPosition"
+    | "aspectRatio"
+    | "content"
+    | "filter"
+    | "backdropFilter"
+    | "listStyle"
+    | "listStyleType"
+    | "outline"
+    | "outlineOffset"
+    | "willChange"
+    | "scrollBehavior"
+    | "mixBlendMode"
+    | "fill"
+    | "stroke"
+    | "strokeWidth";
 
-    // Position
-    position?: "static" | "relative" | "absolute" | "fixed" | "sticky" | string;
-    top?: string;
-    right?: string;
-    bottom?: string;
-    left?: string;
-    zIndex?: number | string;
-
-    // Overflow
-    overflow?: "visible" | "hidden" | "scroll" | "auto" | string;
-    overflowX?: "visible" | "hidden" | "scroll" | "auto" | string;
-    overflowY?: "visible" | "hidden" | "scroll" | "auto" | string;
-
-    // Visibility
-    visibility?: "visible" | "hidden" | "collapse" | string;
-
-    // Typography
-    color?: string;
-    fontFamily?: string;
-    fontSize?: string;
-    fontStyle?: "normal" | "italic" | "oblique" | string;
-    fontVariant?: string;
-    fontWeight?:
-        | "normal"
-        | "bold"
-        | "bolder"
-        | "lighter"
-        | "100"
-        | "200"
-        | "300"
-        | "400"
-        | "500"
-        | "600"
-        | "700"
-        | "800"
-        | "900"
-        | string;
-    letterSpacing?: string;
-    lineHeight?: string;
-    textAlign?:
-        | "left"
-        | "right"
-        | "center"
-        | "justify"
-        | "start"
-        | "end"
-        | string;
-    textDecoration?:
-        | "none"
-        | "underline"
-        | "overline"
-        | "line-through"
-        | string;
-    textOverflow?: "clip" | "ellipsis" | string;
-    textTransform?: "none" | "capitalize" | "uppercase" | "lowercase" | string;
-    whiteSpace?: "normal" | "nowrap" | "pre" | "pre-line" | "pre-wrap" | string;
-
-    // Flex
-    alignItems?:
-        | "stretch"
-        | "center"
-        | "flex-start"
-        | "flex-end"
-        | "baseline"
-        | string;
-    alignContent?:
-        | "stretch"
-        | "center"
-        | "flex-start"
-        | "flex-end"
-        | "space-between"
-        | "space-around"
-        | string;
-    alignSelf?:
-        | "auto"
-        | "stretch"
-        | "center"
-        | "flex-start"
-        | "flex-end"
-        | "baseline"
-        | string;
-    justifyContent?:
-        | "flex-start"
-        | "flex-end"
-        | "center"
-        | "space-between"
-        | "space-around"
-        | "space-evenly"
-        | string;
-    flexDirection?:
-        | "row"
-        | "row-reverse"
-        | "column"
-        | "column-reverse"
-        | string;
-    flexWrap?: "nowrap" | "wrap" | "wrap-reverse" | string;
-
-    // Cursor
-    cursor?:
-        | "auto"
-        | "default"
-        | "pointer"
-        | "wait"
-        | "text"
-        | "move"
-        | "not-allowed"
-        | "crosshair"
-        | "zoom-in"
-        | "zoom-out"
-        | string;
-
-    // Animation
-    animationDirection?:
-        | "normal"
-        | "reverse"
-        | "alternate"
-        | "alternate-reverse"
-        | string;
-    animationFillMode?: "none" | "forwards" | "backwards" | "both" | string;
-    animationPlayState?: "running" | "paused" | string;
-    animationTimingFunction?:
-        | "ease"
-        | "linear"
-        | "ease-in"
-        | "ease-out"
-        | "ease-in-out"
-        | string;
-
-    // Misc
-    opacity?: string | number;
-    pointerEvents?:
-        | "auto"
-        | "none"
-        | "visiblePainted"
-        | "visibleFill"
-        | "visibleStroke"
-        | "visible"
-        | "painted"
-        | "fill"
-        | "stroke"
-        | "all"
-        | string;
-    resize?: "none" | "both" | "horizontal" | "vertical" | string;
-    userSelect?: "auto" | "text" | "none" | "contain" | "all" | string;
-
-    // Any unknown props
-    [key: string]: any;
+/**
+ * Named properties give autocomplete; the index signature still accepts
+ * anything else (custom properties like `--brand`, vendor prefixes like
+ * `WebkitTransition`, new CSS features).
+ */
+export type CSSProps = { [K in CSSPropertyName]?: CSSValue } & {
+    [key: string]: CSSValue;
 };
 
 export type ClassValue =
     | string
     | number
-    | Record<string, boolean>
+    | Record<string, unknown>
     | ClassValue[]
     | null
-    | undefined;
+    | undefined
+    | false;
 
-/**
- * A rendered/renderable text node. `raw: true` means the value is trusted
- * markup/code (e.g. loaded script/style content) and must NOT be
- * HTML-escaped again when rendered. `raw: false` (the default) means the
- * value is plain text and WILL be HTML-escaped by `Render`.
- */
+// ---------------------------------------------------------------------------
+// Nodes
+// ---------------------------------------------------------------------------
+
+/** `raw: true` = trusted markup/code, NOT escaped on render. */
 export type SwiftSSRTextNode = {
+    readonly [NODE_BRAND]: true;
     kind: "text";
     value: string;
     raw: boolean;
 };
 
-/**
- * A rendered/renderable element node: a tag, its (already-normalized)
- * attributes, and its child nodes.
- */
 export type SwiftSSRElementNode = {
+    readonly [NODE_BRAND]: true;
     kind: "element";
-    tag: HTMLElementTag;
+    tag: string;
     props: SwiftSSRHTMLElementProps | null;
     children: SwiftSSRElement[];
 };
 
-/**
- * The result of `Element(...)` / a JSX expression. No longer a plain
- * string — it's a small tree describing either a text node or an element
- * with children. Call `Render()` to turn it into an HTML string.
- */
-export type SwiftSSRElement = SwiftSSRTextNode | SwiftSSRElementNode;
+/** Result of `<>...</>` / `Fragment()`: children with no wrapper tag. */
+export type SwiftSSRFragmentNode = {
+    readonly [NODE_BRAND]: true;
+    kind: "fragment";
+    children: SwiftSSRElement[];
+};
 
-/**
- * Anything that can be passed where a child is expected: a built element,
- * a string/number (turned into an escaped text node), a nullish/false
- * value (skipped), or a (possibly nested) array of any of the above.
- */
+export type SwiftSSRElement =
+    | SwiftSSRTextNode
+    | SwiftSSRElementNode
+    | SwiftSSRFragmentNode;
+
 export type SwiftSSRChild =
     | SwiftSSRElement
     | string
     | number
+    | bigint
     | null
     | undefined
     | boolean;
 
 export type SwiftSSRChildren = SwiftSSRChild | SwiftSSRChildren[];
 
-export type HTMLBaseElementProps = {
-    // Global attributes
+// ---------------------------------------------------------------------------
+// Props
+// ---------------------------------------------------------------------------
+
+export type AttrValue = string | number | boolean | null | undefined;
+
+/** Inline event handlers are *strings* in SSR output (no functions). */
+type EventAttributes = { [K: `on${string}`]: string | undefined };
+type DataAttributes = { [K: `data-${string}`]: AttrValue };
+type AriaAttributes = { [K: `aria-${string}`]: AttrValue };
+/** htmx / Alpine style attributes. */
+type FrameworkAttributes = {
+    [K: `hx-${string}`]: AttrValue;
+    [K: `x-${string}`]: AttrValue;
+};
+
+export interface GlobalAttributes {
+    id?: string;
+    class?: ClassValue;
+    className?: ClassValue;
+    style?: CSSProps | string;
+    title?: string;
+    lang?: string;
+    dir?: "ltr" | "rtl" | "auto";
+    hidden?: boolean | "hidden" | "until-found" | "true" | "false";
+    tabindex?: number | string;
+    tabIndex?: number | string;
+    role?: string;
+    slot?: string;
+    part?: string;
     accesskey?: string;
     autocapitalize?:
         | "off"
@@ -474,12 +419,9 @@ export type HTMLBaseElementProps = {
         | "on"
         | "sentences"
         | "words"
-        | "characters"
-        | string;
-    class?: string;
-    contenteditable?: boolean | "true" | "false";
-    contextmenu?: string;
-    dir?: "ltr" | "rtl" | "auto";
+        | "characters";
+    autofocus?: boolean;
+    contenteditable?: boolean | "true" | "false" | "plaintext-only";
     draggable?: boolean | "true" | "false";
     enterkeyhint?:
         | "enter"
@@ -488,10 +430,8 @@ export type HTMLBaseElementProps = {
         | "next"
         | "previous"
         | "search"
-        | "send"
-        | string;
-    hidden?: boolean | "true" | "false";
-    id?: string;
+        | "send";
+    inert?: boolean;
     inputmode?:
         | "none"
         | "text"
@@ -500,230 +440,286 @@ export type HTMLBaseElementProps = {
         | "tel"
         | "search"
         | "email"
-        | "url"
-        | string;
+        | "url";
     is?: string;
-    lang?: string;
     nonce?: string;
-    part?: string;
-    slot?: string;
+    popover?: boolean | "auto" | "manual";
     spellcheck?: boolean | "true" | "false";
-    tabindex?: number | string;
-    title?: string;
     translate?: "yes" | "no";
+    children?: SwiftSSRChildren;
+    key?: string | number;
+    /** Escape hatch for any attribute not covered by the types. */
+    attrs?: Record<string, AttrValue>;
+}
 
-    // Form-related attributes
-    accept?: string;
-    action?: string;
-    autofocus?: boolean | "true" | "false";
-    autocomplete?: "on" | "off" | string;
-    checked?: boolean | "true" | "false";
-    cols?: number | string;
-    dirname?: string;
-    disabled?: boolean | "true" | "false";
-    form?: string;
-    formaction?: string;
-    formenctype?:
-        | "application/x-www-form-urlencoded"
-        | "multipart/form-data"
-        | "text/plain"
-        | string;
-    formmethod?: "get" | "post" | "dialog" | string;
-    formnovalidate?: boolean | "true" | "false";
-    formtarget?: "_self" | "_blank" | "_parent" | "_top" | string;
-    list?: string;
-    max?: string | number;
-    maxlength?: number | string;
-    min?: string | number;
-    minlength?: number | string;
-    method?: "get" | "post" | "dialog" | string;
-    multiple?: boolean | "true" | "false";
+export type GlobalProps = GlobalAttributes &
+    EventAttributes &
+    DataAttributes &
+    AriaAttributes &
+    FrameworkAttributes;
+
+/**
+ * Permissive props type used by the runtime functions (`Element`, ...). The
+ * strict, per-tag types used for JSX checking live in `IntrinsicElementProps`.
+ */
+export type SwiftSSRHTMLElementProps = GlobalProps & { [key: string]: unknown };
+
+type CrossOrigin = "anonymous" | "use-credentials" | "";
+type ReferrerPolicy =
+    | "no-referrer"
+    | "no-referrer-when-downgrade"
+    | "origin"
+    | "origin-when-cross-origin"
+    | "same-origin"
+    | "strict-origin"
+    | "strict-origin-when-cross-origin"
+    | "unsafe-url";
+type FormControl = {
     name?: string;
-    novalidate?: boolean | "true" | "false";
-    pattern?: string;
-    placeholder?: string;
-    readonly?: boolean | "true" | "false";
-    required?: boolean | "true" | "false";
-    rows?: number | string;
-    selected?: boolean | "true" | "false";
-    size?: number | string;
-    step?: number | string;
-    value?: string | number;
-    wrap?: "hard" | "soft" | "off" | string;
+    form?: string;
+    disabled?: boolean;
+    required?: boolean;
+    autocomplete?: string;
+};
 
-    // Media-related attributes
-    alt?: string;
-    autoplay?: boolean | "true" | "false";
-    controls?: boolean | "true" | "false";
-    height?: string | number;
-    loop?: boolean | "true" | "false";
-    muted?: boolean | "true" | "false";
-    poster?: string;
-    preload?: "none" | "metadata" | "auto" | string;
+export type SvgProps = GlobalProps & {
+    viewBox?: string;
+    xmlns?: string;
     width?: string | number;
-
-    // Anchor & link-related
-    download?: boolean | string;
+    height?: string | number;
+    x?: string | number;
+    y?: string | number;
+    x1?: string | number;
+    x2?: string | number;
+    y1?: string | number;
+    y2?: string | number;
+    cx?: string | number;
+    cy?: string | number;
+    r?: string | number;
+    rx?: string | number;
+    ry?: string | number;
+    d?: string;
+    points?: string;
+    transform?: string;
+    fill?: string;
+    stroke?: string;
+    opacity?: string | number;
+    preserveAspectRatio?: string;
     href?: string;
-    hreflang?: string;
-    media?: string;
-    ping?: string;
-    rel?:
-        | "alternate"
-        | "author"
-        | "bookmark"
-        | "external"
-        | "help"
-        | "license"
-        | "next"
-        | "nofollow"
-        | "noopener"
-        | "noreferrer"
-        | "prev"
-        | "search"
-        | "tag"
-        | string;
-    target?: "_self" | "_blank" | "_parent" | "_top" | string;
-
-    // Script attributes
-    async?: boolean | "true" | "false";
-    defer?: boolean | "true" | "false";
-    src?: string;
-    type?: string;
-    crossorigin?: "anonymous" | "use-credentials" | string;
-    integrity?: string;
-    nomodule?: boolean | "true" | "false";
-    referrerpolicy?:
-        | "no-referrer"
-        | "no-referrer-when-downgrade"
-        | "origin"
-        | "origin-when-cross-origin"
-        | "same-origin"
-        | "strict-origin"
-        | "strict-origin-when-cross-origin"
-        | "unsafe-url"
-        | string;
-
-    // Allow any other attribute or custom prop
-    [key: string]: any;
+    offset?: string | number;
+    // camelCase aliases are converted to kebab-case attributes on render
+    strokeWidth?: string | number;
+    strokeLinecap?: "butt" | "round" | "square";
+    strokeLinejoin?: "miter" | "round" | "bevel";
+    strokeDasharray?: string;
+    strokeDashoffset?: string | number;
+    strokeOpacity?: string | number;
+    fillOpacity?: string | number;
+    fillRule?: "nonzero" | "evenodd";
+    clipRule?: "nonzero" | "evenodd";
+    clipPath?: string;
+    stopColor?: string;
+    stopOpacity?: string | number;
+    textAnchor?: "start" | "middle" | "end";
+    "stroke-width"?: string | number;
 };
 
-export type HTMLEventListenerProps = {
-    onafterprint?: string;
-    onanimationcancel?: string;
-    onanimationend?: string;
-    onanimationiteration?: string;
-    onanimationstart?: string;
-    onauxclick?: string;
-    onbeforeinput?: string;
-    onbeforeprint?: string;
-    onbeforeunload?: string;
-    onblur?: string;
-    oncanplay?: string;
-    oncanplaythrough?: string;
-    onchange?: string;
-    onclick?: string;
-    onclose?: string;
-    oncontextmenu?: string;
-    oncopy?: string;
-    oncuechange?: string;
-    oncut?: string;
-    ondblclick?: string;
-    ondrag?: string;
-    ondragend?: string;
-    ondragenter?: string;
-    ondragexit?: string;
-    ondragleave?: string;
-    ondragover?: string;
-    ondragstart?: string;
-    ondrop?: string;
-    ondurationchange?: string;
-    onemptied?: string;
-    onended?: string;
-    onerror?: string;
-    onfocus?: string;
-    onformdata?: string;
-    onfullscreenchange?: string;
-    onfullscreenerror?: string;
-    ongamepadconnected?: string;
-    ongamepaddisconnected?: string;
-    ongotpointercapture?: string;
-    onhashchange?: string;
-    oninput?: string;
-    oninvalid?: string;
-    onkeydown?: string;
-    onkeypress?: string;
-    onkeyup?: string;
-    onlanguagechange?: string;
-    onload?: string;
-    onloadeddata?: string;
-    onloadedmetadata?: string;
-    onloadstart?: string;
-    onlostpointercapture?: string;
-    onmessage?: string;
-    onmessageerror?: string;
-    onmousedown?: string;
-    onmousemove?: string;
-    onmouseout?: string;
-    onmouseover?: string;
-    onmouseup?: string;
-    onoffline?: string;
-    ononline?: string;
-    onpagehide?: string;
-    onpageshow?: string;
-    onpaste?: string;
-    onpause?: string;
-    onplay?: string;
-    onplaying?: string;
-    onpointercancel?: string;
-    onpointerdown?: string;
-    onpointerenter?: string;
-    onpointerleave?: string;
-    onpointermove?: string;
-    onpointerout?: string;
-    onpointerover?: string;
-    onpointerup?: string;
-    onpopstate?: string;
-    onprogress?: string;
-    onratechange?: string;
-    onrejectionhandled?: string;
-    onreset?: string;
-    onresize?: string;
-    onscroll?: string;
-    onscrollend?: string;
-    onsecuritypolicyviolation?: string;
-    onseeked?: string;
-    onseeking?: string;
-    onselect?: string;
-    onselectionchange?: string;
-    onselectstart?: string;
-    onslotchange?: string;
-    onstalled?: string;
-    onstorage?: string;
-    onsubmit?: string;
-    onsuspend?: string;
-    ontimeupdate?: string;
-    ontoggle?: string;
-    ontransitioncancel?: string;
-    ontransitionend?: string;
-    ontransitionrun?: string;
-    ontransitionstart?: string;
-    onunhandledrejection?: string;
-    onunload?: string;
-    onvolumechange?: string;
-    onwaiting?: string;
-    onwebkitanimationend?: string;
-    onwebkitanimationiteration?: string;
-    onwebkitanimationstart?: string;
-    onwebkittransitionend?: string;
-    //
-    [key: string]: any;
-};
-
-export type SwiftSSRHTMLElementProps = HTMLBaseElementProps &
-    HTMLEventListenerProps & {
-        style?: CSSProps;
-        className?: ClassValue;
-        children?: SwiftSSRChildren;
-        [key: string]: any;
+interface ElementSpecificProps {
+    a: GlobalProps & {
+        href?: string;
+        target?: "_self" | "_blank" | "_parent" | "_top";
+        rel?: string;
+        download?: boolean | string;
+        hreflang?: string;
+        type?: string;
+        ping?: string;
+        referrerpolicy?: ReferrerPolicy;
     };
+    img: GlobalProps & {
+        src?: string;
+        alt?: string;
+        width?: string | number;
+        height?: string | number;
+        srcset?: string;
+        sizes?: string;
+        loading?: "lazy" | "eager";
+        decoding?: "sync" | "async" | "auto";
+        fetchpriority?: "high" | "low" | "auto";
+        crossorigin?: CrossOrigin;
+        referrerpolicy?: ReferrerPolicy;
+        usemap?: string;
+        ismap?: boolean;
+    };
+    input: GlobalProps &
+        FormControl & {
+            type?: string;
+            value?: string | number;
+            placeholder?: string;
+            checked?: boolean;
+            readonly?: boolean;
+            min?: string | number;
+            max?: string | number;
+            step?: string | number;
+            pattern?: string;
+            minlength?: number;
+            maxlength?: number;
+            multiple?: boolean;
+            accept?: string;
+            list?: string;
+            size?: number;
+            src?: string;
+            alt?: string;
+            width?: string | number;
+            height?: string | number;
+        };
+    button: GlobalProps &
+        FormControl & {
+            type?: "button" | "submit" | "reset";
+            value?: string | number;
+            formaction?: string;
+            formmethod?: "get" | "post" | "dialog";
+            formenctype?: string;
+            formnovalidate?: boolean;
+            formtarget?: string;
+        };
+    form: GlobalProps & {
+        action?: string;
+        method?: "get" | "post" | "dialog";
+        enctype?: string;
+        target?: string;
+        novalidate?: boolean;
+        autocomplete?: string;
+        name?: string;
+        "accept-charset"?: string;
+    };
+    label: GlobalProps & { for?: string; htmlFor?: string; form?: string };
+    link: GlobalProps & {
+        rel?: string;
+        href?: string;
+        as?: string;
+        type?: string;
+        media?: string;
+        crossorigin?: CrossOrigin;
+        integrity?: string;
+        sizes?: string;
+        hreflang?: string;
+        referrerpolicy?: ReferrerPolicy;
+        fetchpriority?: "high" | "low" | "auto";
+        imagesrcset?: string;
+        imagesizes?: string;
+    };
+    meta: GlobalProps & {
+        name?: string;
+        content?: string;
+        charset?: string;
+        property?: string;
+        "http-equiv"?: string;
+        httpEquiv?: string;
+        media?: string;
+    };
+    script: GlobalProps & {
+        src?: string;
+        type?: string;
+        async?: boolean;
+        defer?: boolean;
+        nomodule?: boolean;
+        crossorigin?: CrossOrigin;
+        integrity?: string;
+        referrerpolicy?: ReferrerPolicy;
+        fetchpriority?: "high" | "low" | "auto";
+    };
+    style: GlobalProps & { media?: string; type?: string };
+    textarea: GlobalProps &
+        FormControl & {
+            rows?: number;
+            cols?: number;
+            placeholder?: string;
+            readonly?: boolean;
+            wrap?: "hard" | "soft" | "off";
+            minlength?: number;
+            maxlength?: number;
+        };
+    select: GlobalProps & FormControl & { multiple?: boolean; size?: number };
+    option: GlobalProps & {
+        value?: string | number;
+        selected?: boolean;
+        disabled?: boolean;
+        label?: string;
+    };
+    iframe: GlobalProps & {
+        src?: string;
+        srcdoc?: string;
+        name?: string;
+        width?: string | number;
+        height?: string | number;
+        sandbox?: string;
+        allow?: string;
+        allowfullscreen?: boolean;
+        loading?: "lazy" | "eager";
+        referrerpolicy?: ReferrerPolicy;
+    };
+    video: GlobalProps & {
+        src?: string;
+        controls?: boolean;
+        autoplay?: boolean;
+        loop?: boolean;
+        muted?: boolean;
+        playsinline?: boolean;
+        poster?: string;
+        preload?: "none" | "metadata" | "auto";
+        width?: string | number;
+        height?: string | number;
+        crossorigin?: CrossOrigin;
+    };
+    audio: GlobalProps & {
+        src?: string;
+        controls?: boolean;
+        autoplay?: boolean;
+        loop?: boolean;
+        muted?: boolean;
+        preload?: "none" | "metadata" | "auto";
+        crossorigin?: CrossOrigin;
+    };
+    source: GlobalProps & {
+        src?: string;
+        srcset?: string;
+        type?: string;
+        media?: string;
+        sizes?: string;
+        width?: string | number;
+        height?: string | number;
+    };
+    td: GlobalProps & { colspan?: number; rowspan?: number; headers?: string };
+    th: GlobalProps & {
+        colspan?: number;
+        rowspan?: number;
+        headers?: string;
+        scope?: "row" | "col" | "rowgroup" | "colgroup";
+    };
+    col: GlobalProps & { span?: number };
+    colgroup: GlobalProps & { span?: number };
+    ol: GlobalProps & { start?: number; reversed?: boolean; type?: string };
+    li: GlobalProps & { value?: number };
+    details: GlobalProps & { open?: boolean; name?: string };
+    dialog: GlobalProps & { open?: boolean };
+    time: GlobalProps & { datetime?: string };
+    progress: GlobalProps & { value?: number; max?: number };
+    meter: GlobalProps & {
+        value?: number;
+        min?: number;
+        max?: number;
+        low?: number;
+        high?: number;
+        optimum?: number;
+    };
+    base: GlobalProps & { href?: string; target?: string };
+}
+
+/** What `JSX.IntrinsicElements` is built from. */
+export type IntrinsicElementProps = {
+    [K in HTMLElementTag]: K extends keyof ElementSpecificProps
+        ? ElementSpecificProps[K]
+        : K extends HTMLSvgTag
+          ? SvgProps
+          : GlobalProps;
+};

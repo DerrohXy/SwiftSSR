@@ -1,27 +1,26 @@
-import { SwiftSSRHTMLElementProps, HTMLElementTag, SwiftSSRElement } from "./types";
-type SwiftSSRJSXTag = HTMLElementTag | ((props: SwiftSSRHTMLElementProps) => SwiftSSRElement);
-type SwiftSSRJSXChild = SwiftSSRJSXParameters | SwiftSSRElement | string | number | null | undefined | boolean;
-type SwiftSSRJSXChildren = SwiftSSRJSXChild | SwiftSSRJSXChildren[];
-type SwiftSSRJSXProps = SwiftSSRHTMLElementProps & {
-    children?: SwiftSSRJSXChildren;
-};
-type SwiftSSRJSXParameters = {
-    type: SwiftSSRJSXTag;
-    props: SwiftSSRJSXProps;
-    key: any;
-};
+import { Fragment } from "./index.js";
+import type { HTMLElementTag, IntrinsicElementProps, SwiftSSRChildren, SwiftSSRElement } from "./types.js";
 /**
- * Generates a render element (a `SwiftSSRElement` node, not a string) from
- * a JSX tag. Call `Render()` on the result to get HTML.
+ * A component may return anything renderable: an element, a string, an
+ * array, null... Non-element results are wrapped in a Fragment.
  */
-export declare function jsx(type: SwiftSSRJSXTag, props?: SwiftSSRJSXProps, key?: any): SwiftSSRElement;
+export type SwiftSSRComponent<P = any> = (props: P) => SwiftSSRChildren;
+/**
+ * Automatic-runtime entry point. By the time this is called, children have
+ * already been evaluated (they are nodes, strings, arrays...), so there is
+ * nothing to "resolve" - they are handed straight to `Element`.
+ */
+export declare function jsx(type: HTMLElementTag | SwiftSSRComponent, props?: Record<string, any> | null, _key?: unknown): SwiftSSRElement;
 export declare const jsxs: typeof jsx;
-declare global {
-    namespace JSX {
-        type IntrinsicElements = {
-            [tag in HTMLElementTag]: SwiftSSRHTMLElementProps;
-        };
-        type ElementClass = (props: SwiftSSRHTMLElementProps) => SwiftSSRElement;
+export { Fragment };
+export declare namespace JSX {
+    type Element = SwiftSSRElement;
+    type ElementType = HTMLElementTag | SwiftSSRComponent;
+    interface ElementChildrenAttribute {
+        children: {};
     }
+    interface IntrinsicAttributes {
+        key?: string | number;
+    }
+    type IntrinsicElements = IntrinsicElementProps;
 }
-export {};
